@@ -1,8 +1,17 @@
 import java.util.Stack;
 
+/**
+ * Represents a tableau in a game of solitaire. A tableau is a stack of cards, where each card
+ * must be of the opposite color and one value lower than the previous card.
+ */
 public class Tableau {
     private final Stack<Card> _tableau;
 
+    /**
+     * Creates a new tableau and initializes it with a given stack of cards
+     *
+     * @param tableau The stack of cards to initialize the tableau with
+     */
     public Tableau(Stack<Card> tableau) {
         _tableau = new Stack<>();
         while (!tableau.isEmpty()) {
@@ -25,8 +34,11 @@ public class Tableau {
     }
 
     /**
-     * remove the top card from the tableau
+     * Removes the top card from the tableau
      * Also sets the next card, if there, visible
+     *
+     * @return The card that was removed
+     * @throws RuntimeException if the tableau is empty
      */
     public Card pickUpCard() {
         if (_tableau.isEmpty()) {
@@ -70,7 +82,7 @@ public class Tableau {
     }
 
     /**
-     * Returns true if the tableau is empty
+     * Checks if the tableau is empty
      *
      * @return True if the tableau is empty, false otherwise
      */
@@ -87,6 +99,11 @@ public class Tableau {
         return _tableau.size();
     }
 
+    /**
+     * Returns the tableau
+     *
+     * @return The tableau represented as a stack of cards
+     */
     public Stack<Card> get_tableau() {
         return _tableau;
     }
