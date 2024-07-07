@@ -1,10 +1,23 @@
 import java.util.Stack;
 
+/**
+ * Represents the game of Solitaire.
+ * Contains the Deck, the Foundations and the Tableaus.
+ */
 public class Solitaire {
     private final Deck _deck;
     private final Foundation[] _foundationsArray;
     private final Tableau[] _tableausArray;
 
+    /**
+     * Constructor for the Solitaire class.
+     * Initializes the Deck, the Foundations and the Tableaus.
+     * The Deck is initialized with 52 Cards.
+     * The Foundations are initialized with 4 empty Stacks.
+     * The Tableaus are initialized with 7 Stacks of Cards.
+     * The first Tableau has 1 Card, the second 2 Cards, the third 3 Cards and so on.
+     * The top Card of each Tableau is set visible.
+     */
     public Solitaire() {
         _deck = new Deck();
 
@@ -24,6 +37,15 @@ public class Solitaire {
         }
     }
 
+    /**
+     * Places a card on a foundation or tableau by clicking on it.
+     * If the card is the top card of the origin, it is removed from the origin.
+     * If the card is not the top card of the origin, all cards on top of the card are removed from the origin.
+     * The card is then placed on the foundation or tableau.
+     *
+     * @param card The card to be placed
+     * @return True if the card was placed successfully, false otherwise
+     */
     public boolean placeCardOnClick(Card card) {
         Object origin = findCardOrigin(card);
         boolean isTopCard = isCardTopCard(card, origin);
@@ -38,6 +60,17 @@ public class Solitaire {
         return false;
     }
 
+    /**
+     * Places a card on a foundation or tableau by dragging it.
+     * If the card is the top card of the origin, it is removed from the origin.
+     * If the card is not the top card of the origin, all cards on top of the card are removed from the origin.
+     * The card is then placed on the foundation or tableau.
+     *
+     * @param card        The card to be placed
+     * @param targetIndex The index of the foundation or tableau
+     * @param targetType  The type of the target (Foundation or Tableau)
+     * @return True if the card was placed successfully, false otherwise
+     */
     public boolean placeCardOnDrag(Card card, int targetIndex, String targetType) {
         Object origin = findCardOrigin(card);
         boolean isTopCard = isCardTopCard(card, origin);
@@ -54,6 +87,11 @@ public class Solitaire {
         return false;
     }
 
+    /**
+     * Removes the top most card from the given origin.
+     *
+     * @param origin The card to be removed
+     */
     private void removeCardIfTop(Object origin) {
         if (origin instanceof Deck) {
             _deck.removeCardFromDiscardPile();
@@ -64,6 +102,13 @@ public class Solitaire {
         }
     }
 
+    /**
+     * Removes the given card and every card on top of it from the given origin.
+     *
+     * @param origin The card to be removed
+     * @param card   The card to be removed
+     * @throws RuntimeException if the origin is a Deck or Foundation
+     */
     private void removeCardIfNotTop(Object origin, Card card) {
         if (origin instanceof Deck) {
             throw new RuntimeException("Clicked a Card on the Discard Pile that is not the top Card");
@@ -93,15 +138,36 @@ public class Solitaire {
         }
     }
 
+    /**
+     * Places a card on a foundation.
+     *
+     * @param card The card to be placed
+     * @param i    The index of the foundation
+     * @return True if the card was placed successfully, false otherwise
+     */
     private boolean placeCardOnFoundation(Card card, int i) {
         return _foundationsArray[i].placeCard(card);
     }
 
+    /**
+     * Places a card on a tableau.
+     *
+     * @param card The card to be placed
+     * @param i    The index of the tableau
+     * @return True if the card was placed successfully, false otherwise
+     */
     private boolean placeCardOnTableau(Card card, int i) {
         return _tableausArray[i].placeCard(card);
 
     }
 
+    /**
+     * Checks if the card is the top card of the origin.
+     *
+     * @param card   The card to be checked
+     * @param origin The origin of the card
+     * @return True if the card is the top card of the origin, false otherwise
+     */
     private boolean isCardTopCard(Card card, Object origin) {
         if (origin instanceof Deck) {
             return _deck.peekDiscardPile().equals(card);
@@ -116,7 +182,7 @@ public class Solitaire {
 
     /**
      * Tries to place a card on a foundation and if not successful, tries to place it on a tableau
-     * DOES NOT REMOVE THE CARD FROM THE ORIGIN
+     * Does not remove the card from the origin
      *
      * @param card The card to be placed
      * @return True if the card was placed successfully, false otherwise
@@ -134,6 +200,12 @@ public class Solitaire {
         return false;
     }
 
+    /**
+     * Finds the origin of the card by checking the Deck, Tableaus and Foundations.
+     *
+     * @param card The card to find the origin of
+     * @return The origin of the card
+     */
     private Object findCardOrigin(Card card) {
         if (_deck.peekDiscardPile() != null && _deck.peekDiscardPile().equals(card)) {
             return _deck;
@@ -158,22 +230,34 @@ public class Solitaire {
     }
 
     /**
-     * Draws a card from the deck and puts it on the discardPile.
-     * If the deck is empty, all Cards from the discardPile are put back into the Deck
-     * and the first card on the deck is drawn.
+     * The card drawn from the deck if the deck is not empty, null otherwise
+     *
+     * @return The card drawn from the deck
      */
     public Card drawCardFromDeck() {
         return _deck.drawCardFromDeck();
     }
 
+    /**
+     * Places the given card on the discardPile and makes it visible
+     */
     public void placeCardOnDiscardPile(Card card) {
         _deck.placeCardOnDiscardPile(card);
     }
 
+    /**
+     * Puts all the cards from the discardPile back into the deck and sets their visibility to false
+     */
     public void reDealCards() {
         _deck.reDealCards();
     }
 
+    /**
+     * Checks if the game is finished.
+     * The game is finished if all foundations are filled with a King.
+     *
+     * @return True if the game is finished, false otherwise
+     */
     public boolean isGameFinished() {
         for (Foundation foundation : _foundationsArray) {
             if (foundation.isEmpty() || foundation.peekFoundation().getValue() != 13) {
@@ -184,14 +268,30 @@ public class Solitaire {
     }
 
     //Getter methods----------------------------------------------
+
+    /**
+     * Getter method for the deck
+     *
+     * @return The deck
+     */
     public Deck get_deck() {
         return _deck;
     }
 
+    /**
+     * Getter method for the foundationsArray
+     *
+     * @return The foundationsArray
+     */
     public Foundation[] get_foundationsArray() {
         return _foundationsArray;
     }
 
+    /**
+     * Getter method for the tableausArray
+     *
+     * @return The tableausArray
+     */
     public Tableau[] get_tableausArray() {
         return _tableausArray;
     }
