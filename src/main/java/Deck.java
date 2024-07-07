@@ -1,6 +1,13 @@
 import java.util.Collections;
 import java.util.Stack;
 
+/**
+ * The Deck class represents a deck of cards and the discardPile
+ * It contains a deck and a discardPile
+ * The deck is a stack of cards that is shuffled at the beginning of the game
+ * The discardPile is a stack of cards that is empty at the beginning of the game
+ * The discardPile is used to store the cards that are drawn from the deck and can be played
+ */
 public class Deck {
     private final Stack<Card> _deck;
     private final Stack<Card> _discardPile;
@@ -35,7 +42,8 @@ public class Deck {
     }
 
     /**
-     * Puts all the cards from the discardPile back into the deck and sets them not visible
+     * Puts all the cards from the discardPile back into the deck
+     * and sets their visibility to false
      */
     public void reDealCards() {
         while (!_discardPile.empty()) {
@@ -80,8 +88,6 @@ public class Deck {
         return _deck.pop();
     }
 
-    //Getter methods----------------------------------------------
-
     /**
      * Returns the card on top of the deck without removing it
      *
@@ -107,7 +113,7 @@ public class Deck {
     }
 
     /**
-     * Returns true if the deck is empty
+     * Checks if the deck is empty
      *
      * @return True if the deck is empty, false otherwise
      */
@@ -116,7 +122,7 @@ public class Deck {
     }
 
     /**
-     * Returns true if the discardPile is empty
+     * Checks if the discardPile is empty
      *
      * @return True if the discardPile is empty, false otherwise
      */
