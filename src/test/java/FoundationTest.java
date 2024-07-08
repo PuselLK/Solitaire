@@ -12,9 +12,15 @@ class FoundationTest {
     }
 
     @Test
-    void placeCard_ShouldReturnTrue_WhenCardIsPlacedOnEmptyFoundation() {
-        Card card = new Card(Card.Suit.heart, 1);
-        assertTrue(foundation.placeCard(card));
+    void placeCard_ShouldReturnTrue_WhenAceIsPlacedOnEmptyFoundation() {
+        Card cardAce = new Card(Card.Suit.heart, 1);
+        assertTrue(foundation.placeCard(cardAce));
+    }
+
+    @Test
+    void placeCard_ShouldReturnFalse_WhenCardIsNotAceAndFoundationIsEmpty() {
+        Card card = new Card(Card.Suit.heart, 2);
+        assertFalse(foundation.placeCard(card));
     }
 
     @Test
