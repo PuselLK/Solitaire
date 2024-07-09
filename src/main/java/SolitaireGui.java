@@ -1,18 +1,7 @@
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Point;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -21,6 +10,11 @@ import java.util.Objects;
 public class SolitaireGui {
     private Solitaire _solitaire;
     private final JFrame _frame;
+    private final JToolBar _toolBar;
+    private final JLabel _timeLabel;
+    private Timer _timer;
+    private long _startTime;
+    private long _elapsedTime = 0;
     private final JLayeredPane _mainPane;
     private final JPanel _tableauPanels;
     private final JPanel _foundationPanels;
@@ -48,6 +42,15 @@ public class SolitaireGui {
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         _frame.setLayout(new BorderLayout());
         _frame.setSize((int) _screenWidth, (int) _screenHeight);
+
+        // Toolbar
+        _toolBar = new JToolBar();
+        _toolBar.setFloatable(false);
+        _timeLabel = new JLabel("Elapsed time: " + "00:00:00", SwingConstants.CENTER);
+        _timeLabel.setFont(_timeLabel.getFont().deriveFont(24.0f));
+        _timeLabel.setBounds(50, 20, 200, 50);
+        _toolBar.add(_timeLabel);
+        _frame.add(_toolBar, BorderLayout.NORTH);
 
         // Main pane for the game. Used for card dragging
         _mainPane = new JLayeredPane();
@@ -93,7 +96,9 @@ public class SolitaireGui {
             tableauPane.setLayout(null);
             _tableauPanels.add(tableauPane);
         }
-
+        _timer = new Timer(1000, new TimerListener());
+        _startTime = System.currentTimeMillis() - _elapsedTime;
+        _timer.start();
         _frame.setVisible(true);
         renderGameState();
     }
@@ -384,5 +389,21 @@ public class SolitaireGui {
             System.err.println("Card image not found: " + filePath);
             return null;
         }
+    }
+
+    private class TimerListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            long currentTime = System.currentTimeMillis();
+            _elapsedTime = currentTime - _startTime;
+            updateDisplay(_elapsedTime);
+        }
+    }
+
+    private void updateDisplay(long elapsedTime) {
+        long hours = elapsedTime / 3600000;
+        long minutes = (elapsedTime / 60000) % 60;
+        long seconds = (elapsedTime / 1000) % 60;
+        _timeLabel.setText("Elapsed time: " + String.format("%02d:%02d:%02d", hours, minutes, seconds));
     }
 }
