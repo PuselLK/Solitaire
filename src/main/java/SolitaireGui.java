@@ -10,10 +10,8 @@ import java.util.Objects;
 public class SolitaireGui {
     private Solitaire _solitaire;
     private final JFrame _frame;
-    private final JToolBar _toolBar;
     private final JLabel _timeLabel;
-    private Timer _timer;
-    private long _startTime;
+    private final long _startTime;
     private long _elapsedTime = 0;
     private final JLayeredPane _mainPane;
     private final JPanel _tableauPanels;
@@ -44,7 +42,7 @@ public class SolitaireGui {
         _frame.setSize((int) _screenWidth, (int) _screenHeight);
 
         // Toolbar
-        _toolBar = new JToolBar();
+        JToolBar _toolBar = new JToolBar();
         _toolBar.setFloatable(false);
         _timeLabel = new JLabel("Elapsed time: " + "00:00:00", SwingConstants.CENTER);
         _timeLabel.setFont(_timeLabel.getFont().deriveFont(24.0f));
@@ -96,7 +94,7 @@ public class SolitaireGui {
             tableauPane.setLayout(null);
             _tableauPanels.add(tableauPane);
         }
-        _timer = new Timer(1000, new TimerListener());
+        Timer _timer = new Timer(1000, new TimerListener());
         _startTime = System.currentTimeMillis() - _elapsedTime;
         _timer.start();
         _frame.setVisible(true);
