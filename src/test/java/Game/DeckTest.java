@@ -1,3 +1,5 @@
+package Game;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -62,7 +64,7 @@ class DeckTest {
     void peekDeck_ShouldReturnTopCard_WithoutRemovingIt() {
         Card topCard = deck.peekDeck();
         assertNotNull(topCard);
-        assertFalse(deck.isDeckEmpty()); // Deck should still be full
+        assertFalse(deck.isDeckEmpty()); // Game.Deck should still be full
     }
 
     @Test

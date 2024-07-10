@@ -1,143 +1,56 @@
+package GUI;
+
+import Game.*;
+
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Objects;
 
-public class SolitaireGui {
-    private Solitaire _solitaire;
-    private final JFrame _frame;
-    private final JLabel _timeLabel;
-    private final long _startTime;
-    private long _elapsedTime = 0;
+import static GUI.GamePanel.renderGameState;
+
+
+public class CardPanel {
+    private final Solitaire _solitaire;
     private final JLayeredPane _mainPane;
-    private final JPanel _tableauPanels;
     private final JPanel _foundationPanels;
     private final JPanel _deckPanel;
     private final JPanel _discardPilePanel;
-    private double _screenWidth = 1200;
-    private double _screenHeight = 800;
-    private Point _initialClick;
+    private final JPanel _tableauPanels;
     private boolean _hasBeenDragged;
     private JLabel _draggedLabel = null;
+    private Point _initialClick;
 
-    private static final String FOUNDATION = "Foundation";
+    private static final String FOUNDATION = "Game.Foundation";
     private static final String DISCARD_PILE = "Discard Pile";
-    private static final String DECK = "Deck";
-    private static final String TABLEAU = "Tableau";
+    private static final String DECK = "Game.Deck";
+    private static final String TABLEAU = "Game.Tableau";
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(SolitaireGui::new);
-    }
-
-    public SolitaireGui() {
-        _solitaire = new Solitaire();
-
-        _frame = new JFrame("Solitaire");
-        _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        _frame.setLayout(new BorderLayout());
-        _frame.setSize((int) _screenWidth, (int) _screenHeight);
-
-        // Toolbar
-        JToolBar _toolBar = new JToolBar();
-        _toolBar.setFloatable(false);
-        _timeLabel = new JLabel("Elapsed time: " + "00:00:00", SwingConstants.CENTER);
-        _timeLabel.setFont(_timeLabel.getFont().deriveFont(24.0f));
-        _timeLabel.setBounds(50, 20, 200, 50);
-        _toolBar.add(_timeLabel);
-        _frame.add(_toolBar, BorderLayout.NORTH);
-
-        // Main pane for the game. Used for card dragging
-        _mainPane = new JLayeredPane();
-        _mainPane.setLayout(null);
-        _frame.add(_mainPane, BorderLayout.CENTER);
-
-        // Panel for top row which holds the foundation piles, deck and discard pile
-        //TODO change hgab later to be more dynamic
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 80, 0));
-        topPanel.setBounds(0, 0, (int) _screenWidth, (int) (_screenHeight * 0.25)); // Ensure top panel coordinates and size
-        topPanel.setBackground(new Color(0, 128, 0));
-        _mainPane.add(topPanel, JLayeredPane.DEFAULT_LAYER);
-
-        // Panels for foundation piles
-        _foundationPanels = new JPanel(new GridLayout(1, 4));
-        _foundationPanels.setPreferredSize(new Dimension((int) (_screenWidth * 2.0 / 4), (int) (_screenHeight * 0.25)));
-
-        topPanel.add(_foundationPanels);
-        for (int i = 0; i < 4; i++) {
-            TitledBorder titledBorder = BorderFactory.createTitledBorder(FOUNDATION + " " + (i + 1));
-            titledBorder.setTitleColor(Color.BLACK);
-            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, 3);
-            titledBorder.setBorder(lineBorder);
-
-            JPanel foundationPanel = new JPanel();
-            foundationPanel.setBorder(titledBorder);
-            foundationPanel.setBackground(new Color(0, 128, 0));
-
-            _foundationPanels.add(foundationPanel, BorderLayout.CENTER);
-        }
-
-        // Panel for the discard pile
-        _discardPilePanel = new JPanel();
-        _discardPilePanel.setPreferredSize(new Dimension((int) (_screenWidth / 8), (int) (_screenHeight * 0.25)));
-        TitledBorder titledBorder = BorderFactory.createTitledBorder(DISCARD_PILE);
-        titledBorder.setTitleColor(Color.BLACK);
-        Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, 3);
-        titledBorder.setBorder(lineBorder);
-        _discardPilePanel.setBorder(titledBorder);
-        _discardPilePanel.setBackground(new Color(0, 128, 0));
-        topPanel.add(_discardPilePanel, BorderLayout.EAST);
-
-        // Panel for the deck
-        _deckPanel = new JPanel();
-        _deckPanel.setPreferredSize(new Dimension((int) (_screenWidth / 8), (int) (_screenHeight * 0.25)));
-        titledBorder = BorderFactory.createTitledBorder(DECK);
-        titledBorder.setTitleColor(Color.BLACK);
-        titledBorder.setBorder(lineBorder);
-        _deckPanel.setBorder(titledBorder);
-        _deckPanel.setBackground(new Color(0, 128, 0));
-        topPanel.add(_deckPanel, BorderLayout.EAST);
-
-        // Panels for Tableau piles
-        _tableauPanels = new JPanel(new GridLayout(1, 7));
-        _tableauPanels.setBounds(0, (int) (_screenHeight * 0.25), (int) _screenWidth, (int) (_screenHeight * 0.65));
-        _tableauPanels.setBackground(new Color(0, 128, 0));
-        _mainPane.add(_tableauPanels, JLayeredPane.DEFAULT_LAYER);
-
-        for (int i = 0; i < 7; i++) {
-            titledBorder = BorderFactory.createTitledBorder(TABLEAU + " " + (i + 1));
-            titledBorder.setTitleColor(Color.BLACK);
-            titledBorder.setBorder(lineBorder);
-
-            JLayeredPane tableauPane = new JLayeredPane();
-            tableauPane.setBorder(titledBorder);
-            tableauPane.setLayout(null);
-            _tableauPanels.add(tableauPane);
-        }
-        Timer _timer = new Timer(1000, new TimerListener());
-        _startTime = System.currentTimeMillis() - _elapsedTime;
-        _timer.start();
-
-        _frame.setVisible(true);
-        renderGameState();
-
+    /**
+     * Creates a new card panel with the given solitaire game and panels
+     *
+     * @param solitaire        The solitaire game to be displayed
+     * @param mainPane         The main pane of the game
+     * @param foundationPanels The foundation panels of the game
+     * @param deckPanel        The deck panel of the game
+     * @param discardPilePanel The discard pile panel of the game
+     * @param tableauPanels    The tableau panels of the game
+     */
+    public CardPanel(Solitaire solitaire, JLayeredPane mainPane, JPanel foundationPanels, JPanel deckPanel, JPanel discardPilePanel, JPanel tableauPanels) {
+        _solitaire = solitaire;
+        _mainPane = mainPane;
+        _foundationPanels = foundationPanels;
+        _deckPanel = deckPanel;
+        _discardPilePanel = discardPilePanel;
+        _tableauPanels = tableauPanels;
     }
 
     /**
-     * Clears the entire game state and re-renders it based on the current state of the game
+     * Renders the foundation piles based on the current state of the game
      */
-    private void renderGameState() {
-        clearPanels();
-
-        int cardOffset = 30; // Offset for overlapping cards
-        int tableauX_Coordinate = (_tableauPanels.getComponent(1).getWidth() - 100) / 2;
-
-        // Render foundations
+    public void renderFoundation() {
         for (int i = 0; i < _solitaire.get_foundationsArray().length; i++) {
             Foundation foundation = _solitaire.get_foundationsArray()[i];
             JPanel panel = (JPanel) _foundationPanels.getComponent(i);
@@ -146,9 +59,14 @@ public class SolitaireGui {
                 panel.add(foundationLabel);
             }
         }
+    }
 
-        //render deck
+    /**
+     * Renders the deck and discard pile based on the current state of the game
+     */
+    public void renderDeckAndDiscardPile() {
         Deck deck = _solitaire.get_deck();
+
         if (deck.isDeckEmpty()) {
             JLabel redrawLabel = createRedrawLabel();
             _deckPanel.add(redrawLabel);
@@ -157,20 +75,26 @@ public class SolitaireGui {
             _deckPanel.add(deckCardLabel);
         }
 
-        // Render discard pile
         if (!deck.isDiscardPileEmpty()) {
             JLabel discardCardLabel = createCardLabelClickable(deck.peekDiscardPile(), DISCARD_PILE, _discardPilePanel);
             _discardPilePanel.add(discardCardLabel);
         }
+    }
 
-        // Render tableaux
+    /**
+     * Renders the tableau piles based on the current state of the game
+     */
+    public void renderTableau() {
+        int cardOffset = 30;
+
+        int tableauX_Coordinate = (_tableauPanels.getComponent(1).getWidth() - 100) / 2;
+
         for (int i = 0; i < _solitaire.get_tableausArray().length; i++) {
             Tableau tableau = _solitaire.get_tableausArray()[i];
 
             int layer = 0;
             int yPos = 20;
 
-            // Render Tableau
             for (Card card : tableau.get_tableau()) {
                 JLabel tableauCardLabel;
                 if (!card.isVisible()) {
@@ -179,36 +103,13 @@ public class SolitaireGui {
                     tableauCardLabel = createCardLabelClickable(card, TABLEAU, (Container) _tableauPanels.getComponent(i));
                 }
 
-                tableauCardLabel.setBounds(tableauX_Coordinate, yPos, 100, 144); // Adjust size as needed
+                tableauCardLabel.setBounds(tableauX_Coordinate, yPos, 100, 144);
                 JLayeredPane pane = (JLayeredPane) _tableauPanels.getComponent(i);
                 pane.add(tableauCardLabel, Integer.valueOf(layer));
                 yPos += cardOffset;
                 layer++;
             }
         }
-
-        // Refresh the frame
-        _frame.revalidate();
-        _frame.repaint();
-        if (_solitaire.isGameFinished()) {
-            JOptionPane.showMessageDialog(_frame, "Congratulations! You have won the game!");
-        }
-    }
-
-    /**
-     * Removes all Components from the foundation, tableau, deck and discard pile panels
-     */
-    private void clearPanels() {
-        for (int i = 0; i < _tableauPanels.getComponentCount(); i++) {
-            JLayeredPane tableauPane = (JLayeredPane) _tableauPanels.getComponent(i);
-            tableauPane.removeAll();
-        }
-        for (int i = 0; i < _foundationPanels.getComponentCount(); i++) {
-            JPanel foundationPanel = (JPanel) _foundationPanels.getComponent(i);
-            foundationPanel.removeAll();
-        }
-        _deckPanel.removeAll();
-        _discardPilePanel.removeAll();
     }
 
     /**
@@ -274,7 +175,7 @@ public class SolitaireGui {
 
     /**
      * Handles the mouse pressed event for a card label
-     * The Card Label is removed from its parent container and added to the drag layer of the main pane
+     * The Game.Card Label is removed from its parent container and added to the drag layer of the main pane
      *
      * @param e               The mouse event
      * @param cardLabel       The label that was pressed
@@ -297,7 +198,7 @@ public class SolitaireGui {
     }
 
     /**
-     * Moves all Card Labels above the dragged card to the drag layer of the main pane
+     * Moves all Game.Card Labels above the dragged card to the drag layer of the main pane
      *
      * @param parentContainer The container in which the card is placed
      * @param cardLabel       The label that is being dragged
@@ -347,8 +248,7 @@ public class SolitaireGui {
             }
 
             if (!cardPlaced) {
-                //TODO implement some feedback later
-                System.out.println("Card could not be placed");
+                System.out.println("Game.Card could not be placed");
             }
         }
 
@@ -357,27 +257,26 @@ public class SolitaireGui {
     }
 
     /**
-     * When a Card has been clicked,we either draw a card from the deck or place the card on the discard pile
+     * When a Game.Card has been clicked,we either draw a card from the deck or place the card on the discard pile
      * or place the card on the foundation or tableau
      *
      * @param card   The card that was clicked
      * @param source The source of the card
      */
     private void handleClick(Card card, String source) {
-        System.out.println("Card clicked: " + card.getSuit() + " " + card.getValue());
+        System.out.println("Game.Card clicked: " + card.getSuit() + " " + card.getValue());
 
         if (source.equals(DECK)) {
             _solitaire.placeCardOnDiscardPile(_solitaire.drawCardFromDeck());
         } else {
             if (!_solitaire.placeCardOnClick(card)) {
-                //TODO implement some feedback later
-                System.out.println("Card could not be placed");
+                System.out.println("Game.Card could not be placed");
             }
         }
     }
 
     /**
-     * When a Card has been dragged, this method handles the dropping of the card based on the drop target
+     * When a Game.Card has been dragged, this method handles the dropping of the card based on the drop target
      * <p>
      * If the drop target is a JPanel, we iterate through the foundation panels to find the correct target
      * and place the card on the foundation
@@ -455,7 +354,6 @@ public class SolitaireGui {
         }
     }
 
-
     /**
      * Recursively finds the drop target for a card label based on its position
      *
@@ -504,7 +402,7 @@ public class SolitaireGui {
         if (file.exists()) {
             return new ImageIcon(fileName);
         } else {
-            System.err.println("Card image not found: " + fileName);
+            System.err.println("Game.Card image not found: " + fileName);
             return null;
         }
     }
@@ -517,7 +415,6 @@ public class SolitaireGui {
     private JLabel createRedrawLabel() {
         JLabel redrawLabel = new JLabel();
         redrawLabel.setIcon(loadOtherImage("src/main/resources/redraw/refresh.png"));
-        //TODO improve looks and alignment
         redrawLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -550,32 +447,8 @@ public class SolitaireGui {
         if (file.exists()) {
             return new ImageIcon(filePath);
         } else {
-            System.err.println("Card image not found: " + filePath);
+            System.err.println("Game.Card image not found: " + filePath);
             return null;
         }
-    }
-
-    /**
-     * TimerListener class that updates the time label every second
-     */
-    private class TimerListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            long currentTime = System.currentTimeMillis();
-            _elapsedTime = currentTime - _startTime;
-            updateDisplay(_elapsedTime);
-        }
-    }
-
-    /**
-     * Updates the time label with the elapsed time
-     *
-     * @param elapsedTime The elapsed time in milliseconds
-     */
-    private void updateDisplay(long elapsedTime) {
-        long hours = elapsedTime / 3600000;
-        long minutes = (elapsedTime / 60000) % 60;
-        long seconds = (elapsedTime / 1000) % 60;
-        _timeLabel.setText("Elapsed time: " + String.format("%02d:%02d:%02d", hours, minutes, seconds));
     }
 }

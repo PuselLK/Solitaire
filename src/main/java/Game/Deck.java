@@ -1,8 +1,10 @@
+package Game;
+
 import java.util.Collections;
 import java.util.Stack;
 
 /**
- * The Deck class represents a deck of cards and the discardPile
+ * The Game.Deck class represents a deck of cards and the discardPile
  * It contains a deck and a discardPile
  * The deck is a stack of cards that is shuffled at the beginning of the game
  * The discardPile is a stack of cards that is empty at the beginning of the game
@@ -13,7 +15,7 @@ public class Deck {
     private final Stack<Card> _discardPile;
 
     /**
-     * Constructor for the Deck class
+     * Constructor for the Game.Deck class
      * Initializes the deck with all 52 cards and shuffles them
      * Initializes the discardPile
      */
@@ -63,10 +65,10 @@ public class Deck {
     }
 
     /**
-     * Pops a Card from the discardPile.
+     * Pops a Game.Card from the discardPile.
      * throws an Exception if the discardPile is empty which should not happen
      * because it can only be accessed via GUI when there is a ClickableLabel
-     * and therefore a Card
+     * and therefore a Game.Card
      */
     public void removeCardFromDiscardPile() {
         if (_discardPile.empty()) {
@@ -83,7 +85,7 @@ public class Deck {
      */
     public Card drawCardForInit() {
         if (_deck.empty()) {
-            throw new RuntimeException("Deck is empty");
+            throw new RuntimeException("Game.Deck is empty");
         }
         return _deck.pop();
     }

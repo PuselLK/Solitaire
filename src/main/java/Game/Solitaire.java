@@ -1,8 +1,10 @@
+package Game;
+
 import java.util.Stack;
 
 /**
- * Represents the game of Solitaire.
- * Contains the Deck, the Foundations and the Tableaus.
+ * Represents the game of Game.Solitaire.
+ * Contains the Game.Deck, the Foundations and the Tableaus.
  */
 public class Solitaire {
     private final Deck _deck;
@@ -10,13 +12,13 @@ public class Solitaire {
     private final Tableau[] _tableausArray;
 
     /**
-     * Constructor for the Solitaire class.
-     * Initializes the Deck, the Foundations and the Tableaus.
-     * The Deck is initialized with 52 Cards.
+     * Constructor for the Game.Solitaire class.
+     * Initializes the Game.Deck, the Foundations and the Tableaus.
+     * The Game.Deck is initialized with 52 Cards.
      * The Foundations are initialized with 4 empty Stacks.
      * The Tableaus are initialized with 7 Stacks of Cards.
-     * The first Tableau has 1 Card, the second 2 Cards, the third 3 Cards and so on.
-     * The top Card of each Tableau is set visible.
+     * The first Game.Tableau has 1 Game.Card, the second 2 Cards, the third 3 Cards and so on.
+     * The top Game.Card of each Game.Tableau is set visible.
      */
     public Solitaire() {
         _deck = new Deck();
@@ -68,19 +70,19 @@ public class Solitaire {
      *
      * @param card        The card to be placed
      * @param targetIndex The index of the foundation or tableau
-     * @param targetType  The type of the target (Foundation or Tableau)
+     * @param targetType  The type of the target (Game.Foundation or Game.Tableau)
      * @return True if the card was placed successfully, false otherwise
      */
     public boolean placeCardOnDrag(Card card, int targetIndex, String targetType) {
         Object origin = findCardOrigin(card);
         boolean isTopCard = isCardTopCard(card, origin);
 
-        if ((isTopCard && targetType.equals("Foundation") && placeCardOnFoundation(card, targetIndex)) ||
-                (isTopCard && targetType.equals("Tableau") && placeCardOnTableau(card, targetIndex))) {
+        if ((isTopCard && targetType.equals("Game.Foundation") && placeCardOnFoundation(card, targetIndex)) ||
+                (isTopCard && targetType.equals("Game.Tableau") && placeCardOnTableau(card, targetIndex))) {
             removeCardIfTop(origin);
             return true;
-        } else if ((!isTopCard && targetType.equals("Foundation") && placeCardOnFoundation(card, targetIndex)) ||
-                (!isTopCard && targetType.equals("Tableau") && placeCardOnTableau(card, targetIndex))) {
+        } else if ((!isTopCard && targetType.equals("Game.Foundation") && placeCardOnFoundation(card, targetIndex)) ||
+                (!isTopCard && targetType.equals("Game.Tableau") && placeCardOnTableau(card, targetIndex))) {
             removeCardIfNotTop(origin, card);
             return true;
         }
@@ -107,13 +109,13 @@ public class Solitaire {
      *
      * @param origin The card to be removed
      * @param card   The card to be removed
-     * @throws RuntimeException if the origin is a Deck or Foundation
+     * @throws RuntimeException if the origin is a Game.Deck or Game.Foundation
      */
     private void removeCardIfNotTop(Object origin, Card card) {
         if (origin instanceof Deck) {
-            throw new RuntimeException("Clicked a Card on the Discard Pile that is not the top Card");
+            throw new RuntimeException("Clicked a Game.Card on the Discard Pile that is not the top Game.Card");
         } else if (origin instanceof Foundation) {
-            throw new RuntimeException("Clicked a Card on the Foundation that is not the top Card");
+            throw new RuntimeException("Clicked a Game.Card on the Game.Foundation that is not the top Game.Card");
         } else if (origin instanceof Tableau) {
             Stack<Card> cardsOnTop = new Stack<>();
 
@@ -129,8 +131,8 @@ public class Solitaire {
             // place all cards on top of the clicked card to the tableau excluding the clicked card
             Object newOrigin = findCardOrigin(card);
             if (newOrigin instanceof Deck || newOrigin instanceof Foundation || newOrigin == null) {
-                throw new RuntimeException("Card has been moved to a Foundation or Deck/discardPile even though " +
-                        "it was not the top card or the Card was not found.");
+                throw new RuntimeException("Game.Card has been moved to a Game.Foundation or Game.Deck/discardPile even though " +
+                        "it was not the top card or the Game.Card was not found.");
             }
             while (!cardsOnTop.isEmpty()) {
                 ((Tableau) newOrigin).placeCard(cardsOnTop.pop());
@@ -201,7 +203,7 @@ public class Solitaire {
     }
 
     /**
-     * Finds the origin of the card by checking the Deck, Tableaus and Foundations.
+     * Finds the origin of the card by checking the Game.Deck, Tableaus and Foundations.
      *
      * @param card The card to find the origin of
      * @return The origin of the card
@@ -211,7 +213,7 @@ public class Solitaire {
             return _deck;
         }
 
-        // Tableau
+        // Game.Tableau
         for (Tableau tableau : _tableausArray) {
             for (Card tableauCard : tableau.get_tableau()) {
                 if (tableauCard.equals(card)) {
@@ -220,7 +222,7 @@ public class Solitaire {
             }
         }
 
-        // Foundation
+        // Game.Foundation
         for (Foundation foundation : _foundationsArray) {
             if (foundation.peekFoundation() != null && foundation.peekFoundation().equals(card)) {
                 return foundation;
