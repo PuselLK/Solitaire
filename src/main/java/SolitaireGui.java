@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,46 +61,71 @@ public class SolitaireGui {
         //TODO change hgab later to be more dynamic
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 80, 0));
         topPanel.setBounds(0, 0, (int) _screenWidth, (int) (_screenHeight * 0.25)); // Ensure top panel coordinates and size
+        topPanel.setBackground(new Color(0, 128, 0));
         _mainPane.add(topPanel, JLayeredPane.DEFAULT_LAYER);
 
         // Panels for foundation piles
         _foundationPanels = new JPanel(new GridLayout(1, 4));
         _foundationPanels.setPreferredSize(new Dimension((int) (_screenWidth * 2.0 / 4), (int) (_screenHeight * 0.25)));
+
         topPanel.add(_foundationPanels);
         for (int i = 0; i < 4; i++) {
+            TitledBorder titledBorder = BorderFactory.createTitledBorder(FOUNDATION + " " + (i + 1));
+            titledBorder.setTitleColor(Color.BLACK);
+            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, 3);
+            titledBorder.setBorder(lineBorder);
+
             JPanel foundationPanel = new JPanel();
-            foundationPanel.setBorder(BorderFactory.createTitledBorder(FOUNDATION + " " + (i + 1)));
+            foundationPanel.setBorder(titledBorder);
+            foundationPanel.setBackground(new Color(0, 128, 0));
+
             _foundationPanels.add(foundationPanel, BorderLayout.CENTER);
         }
 
         // Panel for the discard pile
         _discardPilePanel = new JPanel();
         _discardPilePanel.setPreferredSize(new Dimension((int) (_screenWidth / 8), (int) (_screenHeight * 0.25)));
-        _discardPilePanel.setBorder(BorderFactory.createTitledBorder(DISCARD_PILE));
+        TitledBorder titledBorder = BorderFactory.createTitledBorder(DISCARD_PILE);
+        titledBorder.setTitleColor(Color.BLACK);
+        Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, 3);
+        titledBorder.setBorder(lineBorder);
+        _discardPilePanel.setBorder(titledBorder);
+        _discardPilePanel.setBackground(new Color(0, 128, 0));
         topPanel.add(_discardPilePanel, BorderLayout.EAST);
 
         // Panel for the deck
         _deckPanel = new JPanel();
         _deckPanel.setPreferredSize(new Dimension((int) (_screenWidth / 8), (int) (_screenHeight * 0.25)));
-        _deckPanel.setBorder(BorderFactory.createTitledBorder(DECK));
+        titledBorder = BorderFactory.createTitledBorder(DECK);
+        titledBorder.setTitleColor(Color.BLACK);
+        titledBorder.setBorder(lineBorder);
+        _deckPanel.setBorder(titledBorder);
+        _deckPanel.setBackground(new Color(0, 128, 0));
         topPanel.add(_deckPanel, BorderLayout.EAST);
 
         // Panels for Tableau piles
         _tableauPanels = new JPanel(new GridLayout(1, 7));
-        _tableauPanels.setBounds(0, (int) (_screenHeight * 0.25), (int) _screenWidth, (int) (_screenHeight * 0.75));
+        _tableauPanels.setBounds(0, (int) (_screenHeight * 0.25), (int) _screenWidth, (int) (_screenHeight * 0.65));
+        _tableauPanels.setBackground(new Color(0, 128, 0));
         _mainPane.add(_tableauPanels, JLayeredPane.DEFAULT_LAYER);
 
         for (int i = 0; i < 7; i++) {
+            titledBorder = BorderFactory.createTitledBorder(TABLEAU + " " + (i + 1));
+            titledBorder.setTitleColor(Color.BLACK);
+            titledBorder.setBorder(lineBorder);
+
             JLayeredPane tableauPane = new JLayeredPane();
-            tableauPane.setBorder(BorderFactory.createTitledBorder(TABLEAU + " " + (i + 1)));
+            tableauPane.setBorder(titledBorder);
             tableauPane.setLayout(null);
             _tableauPanels.add(tableauPane);
         }
         Timer _timer = new Timer(1000, new TimerListener());
         _startTime = System.currentTimeMillis() - _elapsedTime;
         _timer.start();
+
         _frame.setVisible(true);
         renderGameState();
+
     }
 
     /**
@@ -117,8 +144,6 @@ public class SolitaireGui {
             if (!foundation.isEmpty()) {
                 JLabel foundationLabel = createCardLabelClickable(foundation.peekFoundation(), FOUNDATION, panel);
                 panel.add(foundationLabel);
-            } else {
-                panel.add(new JLabel("Empty"));
             }
         }
 
@@ -133,9 +158,7 @@ public class SolitaireGui {
         }
 
         // Render discard pile
-        if (deck.isDiscardPileEmpty()) {
-            _discardPilePanel.add(new JLabel("Empty"));
-        } else {
+        if (!deck.isDiscardPileEmpty()) {
             JLabel discardCardLabel = createCardLabelClickable(deck.peekDiscardPile(), DISCARD_PILE, _discardPilePanel);
             _discardPilePanel.add(discardCardLabel);
         }
@@ -161,7 +184,6 @@ public class SolitaireGui {
                 pane.add(tableauCardLabel, Integer.valueOf(layer));
                 yPos += cardOffset;
                 layer++;
-
             }
         }
 
@@ -173,6 +195,9 @@ public class SolitaireGui {
         }
     }
 
+    /**
+     * Removes all Components from the foundation, tableau, deck and discard pile panels
+     */
     private void clearPanels() {
         for (int i = 0; i < _tableauPanels.getComponentCount(); i++) {
             JLayeredPane tableauPane = (JLayeredPane) _tableauPanels.getComponent(i);
@@ -196,136 +221,248 @@ public class SolitaireGui {
      */
     private JLabel createCardLabelClickable(Card card, String source, Container parentContainer) {
         JLabel cardLabel = new JLabel();
+        setCardIcon(cardLabel, card);
+        _hasBeenDragged = false;
+
+        addMouseListeners(cardLabel, card, source, parentContainer);
+
+        return cardLabel;
+    }
+
+    /**
+     * Sets the icon of a card label based on the visibility of the card
+     *
+     * @param cardLabel The label to set the icon for
+     * @param card      The card to get the icon from
+     */
+    private void setCardIcon(JLabel cardLabel, Card card) {
         if (card.isVisible()) {
             cardLabel.setIcon(loadCardImage(card));
         } else {
             cardLabel.setIcon(loadOtherImage("src/main/resources/card back/card_back.png"));
         }
-        _hasBeenDragged = false;
+    }
 
+    /**
+     * Adds mouse listeners to a card label
+     *
+     * @param cardLabel       The label to add the listeners to
+     * @param card            The card that the label represents
+     * @param source          The source of the card
+     * @param parentContainer The container in which the card is placed
+     */
+    private void addMouseListeners(JLabel cardLabel, Card card, String source, Container parentContainer) {
         cardLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                _draggedLabel = cardLabel;
-                _initialClick = e.getPoint();
-                // Set card absolute position based on its parent's position
-                Point cardLocation = SwingUtilities.convertPoint(parentContainer, cardLabel.getLocation(), _mainPane);
-                _draggedLabel.setBounds(cardLocation.x, cardLocation.y, cardLabel.getWidth(), cardLabel.getHeight());
-
-                if (source.equals(TABLEAU)) {
-                    int layer = getTopmostLayer((JLayeredPane) parentContainer);
-                    Component[] compArray = ((JLayeredPane) parentContainer).getComponentsInLayer(layer);
-                    Component comp = compArray[0];
-
-                    while (comp != cardLabel) {
-
-                        if (comp instanceof JLabel label) {
-                            Point otherLocation = SwingUtilities.convertPoint(parentContainer, label.getLocation(), _mainPane);
-                            label.setBounds(otherLocation.x, otherLocation.y, label.getWidth(), label.getHeight());
-                            parentContainer.remove(label);
-                            _mainPane.add(label, JLayeredPane.DRAG_LAYER);
-                        }
-                        layer--;
-                        compArray = ((JLayeredPane) parentContainer).getComponentsInLayer(layer);
-                        comp = compArray[0];
-                    }
-                }
-                parentContainer.remove(cardLabel);
-                _mainPane.add(_draggedLabel, JLayeredPane.DRAG_LAYER);
+                handleMousePressed(e, cardLabel, source, parentContainer);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                _mainPane.remove(_draggedLabel);
-                boolean cardPlaced = false;
-
-                //Executes if a card has been clicked but not dragged
-                if (!_hasBeenDragged) {
-                    System.out.println("Card clicked: " + card.getSuit() + " " + card.getValue());
-
-                    if (source.equals(DECK)) {
-                        _solitaire.placeCardOnDiscardPile(_solitaire.drawCardFromDeck());
-                    } else {
-                        if (!_solitaire.placeCardOnClick(card)) {
-                            //TODO implement some feedback later
-                            System.out.println("Card could not be placed");
-                        }
-                    }
-
-                    // Executes if the mouse has been dragged
-                } else {
-                    _hasBeenDragged = false;
-                    Container dropTarget = findDropTarget(_mainPane, _draggedLabel.getLocation());
-
-                    if (dropTarget != null) {
-                        System.out.println(_draggedLabel.getIcon() + " dropped on " + dropTarget);
-                        if (dropTarget instanceof JPanel) {
-                            for (int targetIndex = 0; targetIndex < _foundationPanels.getComponentCount(); targetIndex++) {
-                                if (_foundationPanels.getComponent(targetIndex) == dropTarget) {
-                                    cardPlaced = _solitaire.placeCardOnDrag(card, targetIndex, FOUNDATION);
-                                    break;
-                                }
-                            }
-                        } else if (dropTarget instanceof JLayeredPane) {
-                            for (int targetIndex = 0; targetIndex < _tableauPanels.getComponentCount(); targetIndex++) {
-                                if (_tableauPanels.getComponent(targetIndex) == dropTarget) {
-                                    cardPlaced = _solitaire.placeCardOnDrag(card, targetIndex, TABLEAU);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!cardPlaced) {
-                        // Drop card back into its original parent container at the calculated location
-                        //TODO implement some feedback later
-                        System.out.println("Card could not be placed");
-                    }
-                }
-                // Reset the drag layer components
-                for (Component comp : _mainPane.getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
-                    if (comp instanceof JLabel) {
-                        _mainPane.remove(comp);
-                        parentContainer.add(comp);
-                    }
-                }
-                renderGameState();
+                handleMouseReleased(card, source, parentContainer);
             }
         });
 
         cardLabel.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (!Objects.equals(source, DECK)) {
-                    _hasBeenDragged = true;
-                    // Calculate new position
-                    int thisX = _draggedLabel.getLocation().x;
-                    int thisY = _draggedLabel.getLocation().y;
+                handleMouseDragged(e, source);
+            }
+        });
+    }
 
-                    int xMoved = e.getX() - _initialClick.x;
-                    int yMoved = e.getY() - _initialClick.y;
+    /**
+     * Handles the mouse pressed event for a card label
+     * The Card Label is removed from its parent container and added to the drag layer of the main pane
+     *
+     * @param e               The mouse event
+     * @param cardLabel       The label that was pressed
+     * @param source          The source of the card
+     * @param parentContainer The container in which the card is placed
+     */
+    private void handleMousePressed(MouseEvent e, JLabel cardLabel, String source, Container parentContainer) {
+        _draggedLabel = cardLabel;
+        _initialClick = e.getPoint();
 
-                    int nextX = thisX + xMoved;
-                    int nextY = thisY + yMoved;
+        Point cardLocation = SwingUtilities.convertPoint(parentContainer, cardLabel.getLocation(), _mainPane);
+        cardLabel.setBounds(cardLocation.x, cardLocation.y, cardLabel.getWidth(), cardLabel.getHeight());
 
-                    // Move the label within the transparent panel
-                    _draggedLabel.setLocation(nextX, nextY);
+        if (source.equals(TABLEAU)) {
+            handleTableau(parentContainer, cardLabel);
+        }
 
-                    if (source.equals(TABLEAU)) {
-                        for (Component comp : _mainPane.getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
-                            if (comp instanceof JLabel && comp != _draggedLabel) {
-                                Point compLocation = comp.getLocation();
-                                int compNextX = compLocation.x + xMoved;
-                                int compNextY = compLocation.y + yMoved;
-                                comp.setLocation(compNextX, compNextY);
-                            }
-                        }
+        parentContainer.remove(cardLabel);
+        _mainPane.add(_draggedLabel, JLayeredPane.DRAG_LAYER);
+    }
+
+    /**
+     * Moves all Card Labels above the dragged card to the drag layer of the main pane
+     *
+     * @param parentContainer The container in which the card is placed
+     * @param cardLabel       The label that is being dragged
+     */
+    private void handleTableau(Container parentContainer, JLabel cardLabel) {
+        int layer = getTopmostLayer((JLayeredPane) parentContainer);
+        Component[] compArray = ((JLayeredPane) parentContainer).getComponentsInLayer(layer);
+        Component comp = compArray[0];
+
+        while (comp != cardLabel) {
+            if (comp instanceof JLabel label) {
+                Point otherLocation = SwingUtilities.convertPoint(parentContainer, label.getLocation(), _mainPane);
+                label.setBounds(otherLocation.x, otherLocation.y, label.getWidth(), label.getHeight());
+                parentContainer.remove(label);
+                _mainPane.add(label, JLayeredPane.DRAG_LAYER);
+            }
+            layer--;
+            compArray = ((JLayeredPane) parentContainer).getComponentsInLayer(layer);
+            comp = compArray[0];
+        }
+    }
+
+    /**
+     * Handles the mouse released event for a card label
+     * If the card has not been dragged, we handle the click event
+     * If the card has been dragged, we find the drop target and place the card
+     * After the card has been placed, we reset the drag layer components
+     * and rerender the game state
+     *
+     * @param card            The card that was released
+     * @param source          The source of the card
+     * @param parentContainer The container in which the card is placed
+     */
+    private void handleMouseReleased(Card card, String source, Container parentContainer) {
+        _mainPane.remove(_draggedLabel);
+        boolean cardPlaced = false;
+
+        if (!_hasBeenDragged) {
+            handleClick(card, source);
+        } else {
+            _hasBeenDragged = false;
+            Container dropTarget = findDropTarget(_mainPane, _draggedLabel.getLocation());
+
+            if (dropTarget != null) {
+                System.out.println(_draggedLabel.getIcon() + " dropped on " + dropTarget);
+                cardPlaced = handleDrop(card, dropTarget);
+            }
+
+            if (!cardPlaced) {
+                //TODO implement some feedback later
+                System.out.println("Card could not be placed");
+            }
+        }
+
+        resetDragLayerComponents(parentContainer);
+        renderGameState();
+    }
+
+    /**
+     * When a Card has been clicked,we either draw a card from the deck or place the card on the discard pile
+     * or place the card on the foundation or tableau
+     *
+     * @param card   The card that was clicked
+     * @param source The source of the card
+     */
+    private void handleClick(Card card, String source) {
+        System.out.println("Card clicked: " + card.getSuit() + " " + card.getValue());
+
+        if (source.equals(DECK)) {
+            _solitaire.placeCardOnDiscardPile(_solitaire.drawCardFromDeck());
+        } else {
+            if (!_solitaire.placeCardOnClick(card)) {
+                //TODO implement some feedback later
+                System.out.println("Card could not be placed");
+            }
+        }
+    }
+
+    /**
+     * When a Card has been dragged, this method handles the dropping of the card based on the drop target
+     * <p>
+     * If the drop target is a JPanel, we iterate through the foundation panels to find the correct target
+     * and place the card on the foundation
+     * <p>
+     * If the drop target is a JLayeredPane, we iterate through the tableau panels to find the correct target
+     * and place the card on the tableau
+     *
+     * @param card       The card that is being dropped
+     * @param dropTarget The container that the card is being dropped on
+     * @return True if the card was placed, false otherwise
+     */
+    private boolean handleDrop(Card card, Container dropTarget) {
+        boolean cardPlaced = false;
+        if (dropTarget instanceof JPanel) {
+            for (int targetIndex = 0; targetIndex < _foundationPanels.getComponentCount(); targetIndex++) {
+                if (_foundationPanels.getComponent(targetIndex) == dropTarget) {
+                    cardPlaced = _solitaire.placeCardOnDrag(card, targetIndex, FOUNDATION);
+                    break;
+                }
+            }
+        } else if (dropTarget instanceof JLayeredPane) {
+            for (int targetIndex = 0; targetIndex < _tableauPanels.getComponentCount(); targetIndex++) {
+                if (_tableauPanels.getComponent(targetIndex) == dropTarget) {
+                    cardPlaced = _solitaire.placeCardOnDrag(card, targetIndex, TABLEAU);
+                    break;
+                }
+            }
+        }
+        return cardPlaced;
+    }
+
+    /**
+     * Resets _mainPane by removing all components in its DRAG_LAYER
+     * and adding them back to their former parent container
+     *
+     * @param parentContainer The container to add the components back to
+     */
+    private void resetDragLayerComponents(Container parentContainer) {
+        for (Component comp : _mainPane.getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
+            if (comp instanceof JLabel) {
+                _mainPane.remove(comp);
+                parentContainer.add(comp);
+            }
+        }
+    }
+
+    /**
+     * Handles the dragging of a card label by updating its position based on the mouse movement
+     * If the card is from the tableau, all other cards above the dragged card are also moved
+     *
+     * @param e      The mouse event
+     * @param source The source of the card
+     */
+    private void handleMouseDragged(MouseEvent e, String source) {
+        if (!Objects.equals(source, DECK)) {
+            _hasBeenDragged = true;
+
+            int xMoved = e.getX() - _initialClick.x;
+            int yMoved = e.getY() - _initialClick.y;
+
+            int nextX = _draggedLabel.getLocation().x + xMoved;
+            int nextY = _draggedLabel.getLocation().y + yMoved;
+
+            _draggedLabel.setLocation(nextX, nextY);
+
+            if (source.equals(TABLEAU)) {
+                for (Component comp : _mainPane.getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
+                    if (comp instanceof JLabel && comp != _draggedLabel) {
+                        int compNextX = comp.getLocation().x + xMoved;
+                        int compNextY = comp.getLocation().y + yMoved;
+                        comp.setLocation(compNextX, compNextY);
                     }
                 }
             }
-        });
-        return cardLabel;
+        }
     }
 
+
+    /**
+     * Recursively finds the drop target for a card label based on its position
+     *
+     * @param parent The parent container to search in
+     * @param point  The point to search for
+     * @return The drop target container
+     */
     private Container findDropTarget(Container parent, Point point) {
         for (Component component : parent.getComponents()) {
             if (component instanceof Container && component.getBounds().contains(point) && !(component instanceof JLabel)) {
@@ -337,6 +474,13 @@ public class SolitaireGui {
         return null;
     }
 
+    /**
+     * Returns the highest layer of a JLayeredPane
+     * Used to determine the layer of the topmost card in a tableau to later iterate downwards to the dragged card
+     *
+     * @param layeredPane The JLayeredPane to get the highest layer from
+     * @return The highest layer
+     */
     private int getTopmostLayer(JLayeredPane layeredPane) {
         int highestLayer = 0;
         for (Component comp : layeredPane.getComponents()) {
@@ -348,6 +492,12 @@ public class SolitaireGui {
         return highestLayer;
     }
 
+    /**
+     * Loads the image of a card based the image path of the card
+     *
+     * @param card The card to load the image for
+     * @return The ImageIcon of the card
+     */
     private ImageIcon loadCardImage(Card card) {
         String fileName = card.get_imagePath();
         File file = new File(fileName);
@@ -359,6 +509,11 @@ public class SolitaireGui {
         }
     }
 
+    /**
+     * Creates a JLabel for the redraw button
+     *
+     * @return The created JLabel
+     */
     private JLabel createRedrawLabel() {
         JLabel redrawLabel = new JLabel();
         redrawLabel.setIcon(loadOtherImage("src/main/resources/redraw/refresh.png"));
@@ -373,12 +528,23 @@ public class SolitaireGui {
         return redrawLabel;
     }
 
+    /**
+     * Creates a JLabel for the card back
+     *
+     * @return The created JLabel
+     */
     private JLabel createCardBackLabel() {
         JLabel cardBackLabel = new JLabel();
         cardBackLabel.setIcon(loadOtherImage("src/main/resources/card back/card_back.png"));
         return cardBackLabel;
     }
 
+    /**
+     * Loads an image based on the file path
+     *
+     * @param filePath The file path of the image
+     * @return The ImageIcon of the image
+     */
     private ImageIcon loadOtherImage(String filePath) {
         File file = new File(filePath);
         if (file.exists()) {
@@ -389,6 +555,9 @@ public class SolitaireGui {
         }
     }
 
+    /**
+     * TimerListener class that updates the time label every second
+     */
     private class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -398,6 +567,11 @@ public class SolitaireGui {
         }
     }
 
+    /**
+     * Updates the time label with the elapsed time
+     *
+     * @param elapsedTime The elapsed time in milliseconds
+     */
     private void updateDisplay(long elapsedTime) {
         long hours = elapsedTime / 3600000;
         long minutes = (elapsedTime / 60000) % 60;
