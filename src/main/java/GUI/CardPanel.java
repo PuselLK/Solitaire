@@ -23,10 +23,10 @@ public class CardPanel {
     private JLabel _draggedLabel = null;
     private Point _initialClick;
 
-    private static final String FOUNDATION = "Game.Foundation";
+    private static final String FOUNDATION = "Foundation";
     private static final String DISCARD_PILE = "Discard Pile";
-    private static final String DECK = "Game.Deck";
-    private static final String TABLEAU = "Game.Tableau";
+    private static final String DECK = "Deck";
+    private static final String TABLEAU = "Tableau";
 
     /**
      * Creates a new card panel with the given solitaire game and panels
@@ -175,7 +175,7 @@ public class CardPanel {
 
     /**
      * Handles the mouse pressed event for a card label
-     * The Game.Card Label is removed from its parent container and added to the drag layer of the main pane
+     * The Card Label is removed from its parent container and added to the drag layer of the main pane
      *
      * @param e               The mouse event
      * @param cardLabel       The label that was pressed
@@ -198,7 +198,7 @@ public class CardPanel {
     }
 
     /**
-     * Moves all Game.Card Labels above the dragged card to the drag layer of the main pane
+     * Moves all Card Labels above the dragged card to the drag layer of the main pane
      *
      * @param parentContainer The container in which the card is placed
      * @param cardLabel       The label that is being dragged
@@ -248,7 +248,7 @@ public class CardPanel {
             }
 
             if (!cardPlaced) {
-                System.out.println("Game.Card could not be placed");
+                System.out.println("Card could not be placed");
             }
         }
 
@@ -257,26 +257,26 @@ public class CardPanel {
     }
 
     /**
-     * When a Game.Card has been clicked,we either draw a card from the deck or place the card on the discard pile
+     * When a Card has been clicked,we either draw a card from the deck or place the card on the discard pile
      * or place the card on the foundation or tableau
      *
      * @param card   The card that was clicked
      * @param source The source of the card
      */
     private void handleClick(Card card, String source) {
-        System.out.println("Game.Card clicked: " + card.getSuit() + " " + card.getValue());
+        System.out.println("Card clicked: " + card.getSuit() + " " + card.getValue());
 
         if (source.equals(DECK)) {
             _solitaire.placeCardOnDiscardPile(_solitaire.drawCardFromDeck());
         } else {
             if (!_solitaire.placeCardOnClick(card)) {
-                System.out.println("Game.Card could not be placed");
+                System.out.println("Card could not be placed");
             }
         }
     }
 
     /**
-     * When a Game.Card has been dragged, this method handles the dropping of the card based on the drop target
+     * When a Card has been dragged, this method handles the dropping of the card based on the drop target
      * <p>
      * If the drop target is a JPanel, we iterate through the foundation panels to find the correct target
      * and place the card on the foundation
@@ -402,7 +402,7 @@ public class CardPanel {
         if (file.exists()) {
             return new ImageIcon(fileName);
         } else {
-            System.err.println("Game.Card image not found: " + fileName);
+            System.err.println("Card image not found: " + fileName);
             return null;
         }
     }
@@ -447,7 +447,7 @@ public class CardPanel {
         if (file.exists()) {
             return new ImageIcon(filePath);
         } else {
-            System.err.println("Game.Card image not found: " + filePath);
+            System.err.println("Card image not found: " + filePath);
             return null;
         }
     }

@@ -36,19 +36,32 @@ public class Tableau {
     }
 
     /**
+     * Places a given card on the tableau Stack without checking if the move is valid
+     *
+     * @param card The card to be placed
+     */
+    public void placeCardsWithoutCheck(Card card) {
+        _tableau.push(card);
+    }
+
+    /**
      * Removes the top card from the tableau
      * Also sets the next card, if there, visible
      *
      * @return The card that was removed
      * @throws RuntimeException if the tableau is empty
      */
-    public Card pickUpCard() {
+    public Card pickUpCard(GameMove gameMove) {
         if (_tableau.isEmpty()) {
             throw new RuntimeException("Tried to pick up a card from an empty tableau.");
         }
         Card card = _tableau.pop();
         Card topCard = peekTableau();
+
         if (topCard != null) {
+            if (topCard.isVisible()) {
+                gameMove.setTableauCardWasVisible(true);
+            }
             topCard.set_isVisible(true);
         }
         return card;

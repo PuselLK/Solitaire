@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Stack;
 
 /**
- * The Game.Deck class represents a deck of cards and the discardPile
+ * The Deck class represents a deck of cards and the discardPile
  * It contains a deck and a discardPile
  * The deck is a stack of cards that is shuffled at the beginning of the game
  * The discardPile is a stack of cards that is empty at the beginning of the game
@@ -15,7 +15,7 @@ public class Deck {
     private final Stack<Card> _discardPile;
 
     /**
-     * Constructor for the Game.Deck class
+     * Constructor for the Deck class
      * Initializes the deck with all 52 cards and shuffles them
      * Initializes the discardPile
      */
@@ -65,10 +65,10 @@ public class Deck {
     }
 
     /**
-     * Pops a Game.Card from the discardPile.
+     * Pops a Card from the discardPile.
      * throws an Exception if the discardPile is empty which should not happen
      * because it can only be accessed via GUI when there is a ClickableLabel
-     * and therefore a Game.Card
+     * and therefore a Card
      */
     public void removeCardFromDiscardPile() {
         if (_discardPile.empty()) {
@@ -85,9 +85,27 @@ public class Deck {
      */
     public Card drawCardForInit() {
         if (_deck.empty()) {
-            throw new RuntimeException("Game.Deck is empty");
+            throw new RuntimeException("Deck is empty");
         }
         return _deck.pop();
+    }
+
+    /**
+     * Used to go one STep back for the Deck and DiscardPile
+     * If the discardPile is empty, all cards from the deck are moved to the discardPile
+     * If the discardPile is not empty, the top card is moved back to the deck
+     */
+    public void stepBack() {
+        if (_discardPile.empty()) {
+            while (!_deck.empty()) {
+                _deck.peek().set_isVisible(true);
+                _discardPile.push(_deck.pop());
+            }
+        } else {
+            Card card = _discardPile.pop();
+            card.set_isVisible(false);
+            _deck.push(card);
+        }
     }
 
     /**

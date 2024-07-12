@@ -18,7 +18,7 @@ public class Card {
     private boolean _isVisible; // Visibility status of the card.
 
     /**
-     * Constructs a Game.Card instance with specified suit and rank.
+     * Constructs a Card instance with specified suit and rank.
      * Initializes the image path based on the suit and rank.
      *
      * @param suit The suit of the card.

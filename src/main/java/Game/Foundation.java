@@ -22,8 +22,8 @@ public class Foundation {
      * @param card The card to be placed
      * @return True if the card has been placed on the foundation and therefore the move was valid, false otherwise
      */
-    public boolean placeCard(Card card) {
-        if (isValidMove(card)) {
+    public boolean placeCard(Card card, boolean isTopCard) {
+        if (isValidMove(card, isTopCard)) {
             _foundation.push(card);
             return true;
         }
@@ -51,7 +51,10 @@ public class Foundation {
      * @param card The card to be placed
      * @return True if the card can be placed on the foundation, false otherwise
      */
-    private boolean isValidMove(Card card) {
+    private boolean isValidMove(Card card, boolean isTopCard) {
+        if (!isTopCard) {
+            return false;
+        }
         if (_foundation.isEmpty()) {
             return card.getValue() == 1;
         } else {
