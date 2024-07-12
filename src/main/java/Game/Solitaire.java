@@ -126,16 +126,24 @@ public class Solitaire {
 
     /**
      * Removes the top most card from the given origin.
+     * If the origin is a tableau the next card is set visible.
      *
      * @param origin The card to be removed
      */
     private void removeCardIfTop(Object origin, GameMove gameMove) {
         if (origin instanceof Deck) {
             _deck.removeCardFromDiscardPile();
-        } else if (origin instanceof Tableau tableau) {
-            tableau.pickUpCard(gameMove);
         } else if (origin instanceof Foundation foundation) {
             foundation.pickUpCard();
+        } else if (origin instanceof Tableau tableau) {
+            tableau.pickUpCard();
+            Card topCard = tableau.peekTableau();
+            if (topCard != null) {
+                if (topCard.isVisible()) {
+                    gameMove.setTableauCardWasVisible(true);
+                }
+                topCard.set_isVisible(true);
+            }
         }
     }
 
@@ -154,13 +162,22 @@ public class Solitaire {
         } else if (origin instanceof Tableau tableau) {
             Stack<Card> cardsOnTop = new Stack<>();
 
-            for (int i = ((Tableau) origin).getTableauSize(); i > 0; i--) {
+            for (int i = tableau.getTableauSize(); i > 0; i--) {
                 // remove all cards on top of the clicked card including the clicked card
-                cardsOnTop.push(tableau.pickUpCard(gameMove));
+                cardsOnTop.push(tableau.pickUpCard());
                 if (cardsOnTop.peek().equals(card)) {
                     break;
                 }
             }
+            // set the next card visible
+            Card topCard = tableau.peekTableau();
+            if (topCard != null) {
+                if (topCard.isVisible()) {
+                    gameMove.setTableauCardWasVisible(true);
+                }
+                topCard.set_isVisible(true);
+            }
+
             // remove the clicked card since it already has been placed in the top most else if
             cardsOnTop.pop();
 
@@ -184,7 +201,11 @@ public class Solitaire {
      * @return True if the card was placed successfully, false otherwise
      */
     private boolean placeCardOnFoundation(Card card, int i, boolean isTopCard) {
-        return _foundationsArray[i].placeCard(card, isTopCard);
+        if (_foundationsArray[i].isValidMove(card, isTopCard)) {
+            _foundationsArray[i].placeCard(card);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -195,8 +216,11 @@ public class Solitaire {
      * @return True if the card was placed successfully, false otherwise
      */
     private boolean placeCardOnTableau(Card card, int i) {
-        return _tableausArray[i].placeCard(card);
-
+        if (_tableausArray[i].isValidMove(card)) {
+            _tableausArray[i].placeCard(card);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -228,13 +252,15 @@ public class Solitaire {
      */
     private boolean placeCardAlgorithm(Card card, boolean isTopCard) {
         for (Foundation foundation : _foundationsArray) {
-            if (foundation.placeCard(card, isTopCard)) {
+            if (foundation.isValidMove(card, isTopCard)) {
+                foundation.placeCard(card);
                 return true;
             }
         }
 
         for (Tableau tableau : _tableausArray) {
-            if (tableau.placeCard(card)) {
+            if (tableau.isValidMove(card)) {
+                tableau.placeCard(card);
                 return true;
             }
         }
@@ -324,33 +350,36 @@ public class Solitaire {
                 foundation.pickUpCard();
                 deck.placeCardOnDiscardPile(movedCards.get(0));
             } else if (origin instanceof Deck deck && destination instanceof Tableau tableau) {
-                tableau.pickUpCard(gameMove);
+                tableau.pickUpCard();
                 deck.placeCardOnDiscardPile(movedCards.get(0));
             } else if (origin instanceof Tableau tableauOrigin && destination instanceof Tableau tableauDestination) {
                 //Pick up the cards that were placed on the destination tableau including the card that was clicked
-                for (Card card : movedCards) {
-                    tableauDestination.pickUpCard(gameMove);
+                for (Card ignored : movedCards) {
+                    tableauDestination.pickUpCard();
                 }
-                if (!tableauOrigin.isEmpty() && gameMove.getTableauCardWasVisible()) {
+                if (!tableauOrigin.isEmpty() && !gameMove.getTableauCardWasVisible()) {
                     tableauOrigin.peekTableau().set_isVisible(false);
                 }
 
                 //Place the cards back to the origin tableau
                 for (int i = movedCards.size() - 1; i >= 0; i--) {
-                    tableauOrigin.placeCardsWithoutCheck(movedCards.get(i));
+                    tableauOrigin.placeCard(movedCards.get(i));
                 }
 
             } else if (origin instanceof Tableau tableau && destination instanceof Foundation foundation) {
                 foundation.pickUpCard();
-                tableau.placeCardsWithoutCheck(movedCards.get(0));
+                if (!tableau.isEmpty() && !gameMove.getTableauCardWasVisible()) {
+                    tableau.peekTableau().set_isVisible(false);
+                }
+                tableau.placeCard(movedCards.get(0));
 
             } else if (origin instanceof Foundation foundation && destination instanceof Tableau tableau) {
-                tableau.pickUpCard(gameMove);
-                foundation.placeCard(movedCards.get(0), true);
+                tableau.pickUpCard();
+                foundation.placeCard(movedCards.get(0));
 
             } else if (origin instanceof Foundation foundationOrigin && destination instanceof Foundation foundationDestination) {
                 foundationDestination.pickUpCard();
-                foundationOrigin.placeCard(movedCards.get(0), true);
+                foundationOrigin.placeCard(movedCards.get(0));
 
             }
         }

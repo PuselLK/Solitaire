@@ -25,22 +25,8 @@ public class Tableau {
      * Places a given card on the tableau Stack if the move is valid
      *
      * @param card The card to be placed
-     * @return True if the card has been placed on the tableau, false otherwise
      */
-    public boolean placeCard(Card card) {
-        if (isValidMove(card)) {
-            _tableau.push(card);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Places a given card on the tableau Stack without checking if the move is valid
-     *
-     * @param card The card to be placed
-     */
-    public void placeCardsWithoutCheck(Card card) {
+    public void placeCard(Card card) {
         _tableau.push(card);
     }
 
@@ -51,20 +37,11 @@ public class Tableau {
      * @return The card that was removed
      * @throws RuntimeException if the tableau is empty
      */
-    public Card pickUpCard(GameMove gameMove) {
+    public Card pickUpCard() {
         if (_tableau.isEmpty()) {
             throw new RuntimeException("Tried to pick up a card from an empty tableau.");
         }
-        Card card = _tableau.pop();
-        Card topCard = peekTableau();
-
-        if (topCard != null) {
-            if (topCard.isVisible()) {
-                gameMove.setTableauCardWasVisible(true);
-            }
-            topCard.set_isVisible(true);
-        }
-        return card;
+        return _tableau.pop();
     }
 
     /**
@@ -73,7 +50,7 @@ public class Tableau {
      * @param card The card to be placed
      * @return True if the card can be placed on the tableau, false otherwise
      */
-    private boolean isValidMove(Card card) {
+    public boolean isValidMove(Card card) {
         if (_tableau.isEmpty()) {
             return card.getValue() == 13;
         } else {

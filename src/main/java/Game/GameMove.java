@@ -5,7 +5,7 @@ import java.util.List;
 
 public class GameMove {
     private final List<Card> _movedCards;
-    private Object _origin;
+    private final Object _origin;
     private Object _destination;
     private boolean _tableauCardWasVisible;
 
@@ -13,14 +13,11 @@ public class GameMove {
         _movedCards = new ArrayList<>();
         _origin = origin;
         _destination = destination;
+        _tableauCardWasVisible = false;
     }
 
     public void addCard(Card card) {
         _movedCards.add(card);
-    }
-
-    public void set_origin(Object origin) {
-        _origin = origin;
     }
 
     public void set_destination(Object destination) {

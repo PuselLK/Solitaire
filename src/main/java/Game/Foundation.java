@@ -20,14 +20,9 @@ public class Foundation {
      * Places a given card on the foundation Stack if the move is valid
      *
      * @param card The card to be placed
-     * @return True if the card has been placed on the foundation and therefore the move was valid, false otherwise
      */
-    public boolean placeCard(Card card, boolean isTopCard) {
-        if (isValidMove(card, isTopCard)) {
-            _foundation.push(card);
-            return true;
-        }
-        return false;
+    public void placeCard(Card card) {
+        _foundation.push(card);
     }
 
 
@@ -48,10 +43,11 @@ public class Foundation {
      * A card can be placed on the foundation if it is the same suit as the top card of the foundation
      * and its value is one higher
      *
-     * @param card The card to be placed
+     * @param card      The card to be placed
+     * @param isTopCard Has to be true to be a valid move.
      * @return True if the card can be placed on the foundation, false otherwise
      */
-    private boolean isValidMove(Card card, boolean isTopCard) {
+    public boolean isValidMove(Card card, boolean isTopCard) {
         if (!isTopCard) {
             return false;
         }
