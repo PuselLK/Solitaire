@@ -66,15 +66,7 @@ public class Solitaire {
         } else if (!isTopCard && placeCardAlgorithm(card, false)) {
             removeCardIfNotTop(origin, card, gameMove);
 
-            Tableau destination = (Tableau) findCardOrigin(card);
-            gameMove.set_destination(destination);
-            assert destination != null;
-            for (int i = destination.get_tableau().size() - 1; i >= 0; i--) {
-                gameMove.addCard(destination.get_tableau().get(i));
-                if (destination.get_tableau().get(i).equals(card)) {
-                    break;
-                }
-            }
+            doGameMoveStuff(card, gameMove);
             _gameMoves.push(gameMove);
             return true;
         }
@@ -109,15 +101,7 @@ public class Solitaire {
                 (!isTopCard && targetType.equals("Tableau") && placeCardOnTableau(card, targetIndex))) {
             removeCardIfNotTop(origin, card, gameMove);
 
-            Tableau destination = (Tableau) findCardOrigin(card);
-            gameMove.set_destination(destination);
-            assert destination != null;
-            for (int i = destination.get_tableau().size() - 1; i >= 0; i--) {
-                gameMove.addCard(destination.get_tableau().get(i));
-                if (destination.get_tableau().get(i).equals(card)) {
-                    break;
-                }
-            }
+            doGameMoveStuff(card, gameMove);
             _gameMoves.push(gameMove);
             return true;
         }
@@ -335,6 +319,18 @@ public class Solitaire {
             }
         }
         return true;
+    }
+
+    private void doGameMoveStuff(Card card, GameMove gameMove) {
+        Tableau destination = (Tableau) findCardOrigin(card);
+        gameMove.set_destination(destination);
+        assert destination != null;
+        for (int i = destination.get_tableau().size() - 1; i >= 0; i--) {
+            gameMove.addCard(destination.get_tableau().get(i));
+            if (destination.get_tableau().get(i).equals(card)) {
+                break;
+            }
+        }
     }
 
     public void stepBack() {
