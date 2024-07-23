@@ -59,13 +59,6 @@ public class Tableau {
         }
     }
 
-    /**
-     * Removes all Cards from a tableau
-     */
-    public void resetTableau() {
-        _tableau.clear();
-    }
-
     public Card peekTableau() {
         if (_tableau.isEmpty()) {
             return null;
