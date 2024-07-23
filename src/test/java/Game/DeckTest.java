@@ -72,7 +72,7 @@ class DeckTest {
     void stepBack_ShouldPutTopDiscardPileCardBackToDeck_WhenDiscardPileIsNotEmpty() {
         deck.placeCardOnDiscardPile(deck.drawCardFromDeck());
         deck.stepBack();
-        assertEquals(1, deck.get_deck().size());
+        assertEquals(52, deck.get_deck().size());
         assertEquals(0, deck.get_discardPile().size());
     }
 

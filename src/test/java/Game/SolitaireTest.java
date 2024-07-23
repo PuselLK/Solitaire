@@ -19,9 +19,9 @@ class SolitaireTest {
         for (Foundation foundation : solitaire.get_foundationsArray()) {
             assertTrue(foundation.isEmpty());
         }
-
+        
+        int tableauSize = 0;
         for (Tableau tableau : solitaire.get_tableausArray()) {
-            int tableauSize = 0;
             tableauSize++;
             assertEquals(tableauSize, tableau.getTableauSize());
             assertTrue(tableau.peekTableau().isVisible());

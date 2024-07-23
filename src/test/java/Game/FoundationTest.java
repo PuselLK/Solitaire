@@ -31,10 +31,10 @@ class FoundationTest {
     @Test
     void isValidMove_ShouldReturnTrue_WhenCardIsOneHigherAndSameSuit() {
         foundation.placeCard(new Card(Card.Suit.heart, 1));
-        foundation.placeCard(new Card(Card.Suit.club, 1));
         Card cardHeart = new Card(Card.Suit.heart, 2);
-        Card cardClub = new Card(Card.Suit.club, 2);
         assertTrue(foundation.isValidMove(cardHeart, true));
+        foundation.placeCard(new Card(Card.Suit.club, 1));
+        Card cardClub = new Card(Card.Suit.club, 2);
         assertTrue(foundation.isValidMove(cardClub, true));
     }
 

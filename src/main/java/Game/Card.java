@@ -1,5 +1,7 @@
 package Game;
 
+import java.util.Objects;
+
 /**
  * Represents a playing card with a suit, rank, and visibility status.
  * It also contains an image path for graphical representation.
@@ -114,10 +116,21 @@ public class Card {
      * @param otherCard The card to compare with.
      * @return true if both cards have the same suit and rank, false otherwise.
      */
-    public boolean equalsOtherCard(Card otherCard) {
-        if (otherCard == null) {
-            return false;
+    @Override
+    public boolean equals(Object otherCard) {
+        if (otherCard instanceof Card card) {
+            return _rank == card.getValue() && _suit == card.getSuit();
         }
-        return _rank == otherCard.getValue() && _suit == otherCard.getSuit();
+        return false;
+    }
+
+    /**
+     * Generates a hash code for the card based on suit and rank.
+     *
+     * @return The hash code of the card.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(_suit, _rank);
     }
 }

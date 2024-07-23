@@ -161,7 +161,7 @@ public class Solitaire {
         for (int i = tableau.getTableauSize(); i > 0; i--) {
             // remove all cards on top of the clicked card including the clicked card
             cardsOnTop.push(tableau.pickUpCard());
-            if (cardsOnTop.peek().equalsOtherCard(card)) {
+            if (cardsOnTop.peek().equals(card)) {
                 break;
             }
         }
@@ -227,11 +227,11 @@ public class Solitaire {
      */
     private boolean isCardTopCard(Card card, Object origin) {
         if (origin instanceof Deck) {
-            return _deck.peekDiscardPile().equalsOtherCard(card);
+            return _deck.peekDiscardPile().equals(card);
         } else if (origin instanceof Tableau) {
-            return ((Tableau) origin).peekTableau().equalsOtherCard(card);
+            return ((Tableau) origin).peekTableau().equals(card);
         } else if (origin instanceof Foundation) {
-            return ((Foundation) origin).peekFoundation().equalsOtherCard(card);
+            return ((Foundation) origin).peekFoundation().equals(card);
         }
         return false;
 
@@ -269,14 +269,14 @@ public class Solitaire {
      * @return The origin of the card
      */
     private Object findCardOrigin(Card card) {
-        if (_deck.peekDiscardPile() != null && _deck.peekDiscardPile().equalsOtherCard(card)) {
+        if (_deck.peekDiscardPile() != null && _deck.peekDiscardPile().equals(card)) {
             return _deck;
         }
 
         // Tableau
         for (Tableau tableau : _tableausArray) {
             for (Card tableauCard : tableau.get_tableau()) {
-                if (tableauCard.equalsOtherCard(card)) {
+                if (tableauCard.equals(card)) {
                     return tableau;
                 }
             }
@@ -284,7 +284,7 @@ public class Solitaire {
 
         // Foundation
         for (Foundation foundation : _foundationsArray) {
-            if (foundation.peekFoundation() != null && foundation.peekFoundation().equalsOtherCard(card)) {
+            if (foundation.peekFoundation() != null && foundation.peekFoundation().equals(card)) {
                 return foundation;
             }
         }
@@ -338,7 +338,7 @@ public class Solitaire {
         assert destination != null;
         for (int i = destination.get_tableau().size() - 1; i >= 0; i--) {
             gameMove.addCard(destination.get_tableau().get(i));
-            if (destination.get_tableau().get(i).equalsOtherCard(card)) {
+            if (destination.get_tableau().get(i).equals(card)) {
                 break;
             }
         }

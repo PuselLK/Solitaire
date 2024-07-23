@@ -17,7 +17,7 @@ public class Foundation {
     }
 
     /**
-     * Places a given card on the foundation Stack if the move is valid
+     * Places a given card on the foundation
      *
      * @param card The card to be placed
      */
