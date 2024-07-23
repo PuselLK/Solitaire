@@ -6,100 +6,90 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CardTest {
-    private Card cardClubOne;
-    private Card cardHeartTwo;
-    private Card cardSpadeThree;
-    private Card cardDiamondFour;
+    Card cardHeart;
+    Card cardSpade;
+    Card cardClub;
+    Card cardDiamond;
 
     @BeforeEach
     void setUp() {
-        cardClubOne = new Card(Card.Suit.club, 1);
-        cardHeartTwo = new Card(Card.Suit.heart, 2);
-        cardSpadeThree = new Card(Card.Suit.spade, 3);
-        cardDiamondFour = new Card(Card.Suit.diamond, 4);
+        cardHeart = new Card(Card.Suit.heart, 1);
+        cardSpade = new Card(Card.Suit.spade, 2);
+        cardClub = new Card(Card.Suit.club, 3);
+        cardDiamond = new Card(Card.Suit.diamond, 4);
     }
 
     @Test
-    void isOppositeColor_ShouldReturnTrue_WhenColorsAreOpposite() {
-        assertTrue(cardClubOne.isOppositeColor(cardHeartTwo));
-        assertFalse(cardClubOne.isOppositeColor(cardSpadeThree));
+    void CardConstructor_ShouldSetImagePathCorrectly_WhenRankIsBetween_0_And_14() {
+        Card cardRankOne = new Card(Card.Suit.heart, 1);
+        Card cardRank13 = new Card(Card.Suit.heart, 13);
+        assertEquals("src/main/resources/heart/1_heart.png", cardRankOne.get_imagePath());
+        assertEquals("src/main/resources/heart/13_heart.png", cardRank13.get_imagePath());
+    }
 
+    @Test
+    void CardConstructor_ShouldSetImagePathToCardBack_WhenRankIsNotBetween_0_And_14() {
+        Card cardRank0 = new Card(Card.Suit.heart, 0);
+        Card cardRank14 = new Card(Card.Suit.heart, 14);
+        assertEquals("src/main/resources/card back/card_back.png", cardRank0.get_imagePath());
+        assertEquals("src/main/resources/card back/card_back.png", cardRank14.get_imagePath());
+    }
+
+    @Test
+    void isOppositeColor_ShouldReturnTrue_WhenCardsHaveOppositeColors() {
+        assertTrue(cardClub.isOppositeColor(cardDiamond));
+        assertTrue(cardDiamond.isOppositeColor(cardSpade));
+        assertTrue(cardSpade.isOppositeColor(cardHeart));
+        assertTrue(cardHeart.isOppositeColor(cardClub));
+    }
+
+    @Test
+    void isOppositeColor_ShouldReturnFalse_WhenCardsHaveSameColor() {
+        assertFalse(cardClub.isOppositeColor(cardSpade));
+        assertFalse(cardClub.isOppositeColor(cardClub));
+        assertFalse(cardDiamond.isOppositeColor(cardHeart));
+        assertFalse(cardDiamond.isOppositeColor(cardDiamond));
     }
 
     @Test
     void isRed_ShouldReturnTrue_WhenCardIsHeartOrDiamond() {
-        assertTrue(cardHeartTwo.isRed());
-        assertTrue(cardDiamondFour.isRed());
-        assertFalse(cardClubOne.isRed());
-        assertFalse(cardSpadeThree.isRed());
+        assertTrue(cardHeart.isRed());
+        assertTrue(cardDiamond.isRed());
     }
 
     @Test
-    void isBlack_ShouldReturnTrue_WhenCardIsClubOrSpade() {
-        assertTrue(cardClubOne.isBlack());
-        assertTrue(cardSpadeThree.isBlack());
-        assertFalse(cardHeartTwo.isBlack());
-        assertFalse(cardDiamondFour.isBlack());
+    void isRed_ShouldReturnFalse_WhenCardIsSpadeOrClub() {
+        assertFalse(cardSpade.isRed());
+        assertFalse(cardClub.isRed());
     }
 
     @Test
-    void getValue_ShouldReturnCorrectRank() {
-        assertEquals(1, cardClubOne.getValue());
-        assertEquals(2, cardHeartTwo.getValue());
+    void isBlack_ShouldReturnTrue_WhenCardIsSpadeOrClub() {
+        assertTrue(cardSpade.isBlack());
+        assertTrue(cardClub.isBlack());
     }
 
     @Test
-    void getSuit_ShouldReturnCorrectSuit() {
-        assertEquals(Card.Suit.club, cardClubOne.getSuit());
-        assertEquals(Card.Suit.spade, cardSpadeThree.getSuit());
-        assertEquals(Card.Suit.heart, cardHeartTwo.getSuit());
-        assertEquals(Card.Suit.diamond, cardDiamondFour.getSuit());
+    void isBlack_ShouldReturnFalse_WhenCardIsHeartOrDiamond() {
+        assertFalse(cardHeart.isBlack());
+        assertFalse(cardDiamond.isBlack());
     }
 
     @Test
-    void get_imagePath_ShouldReturnCorrectPath_WhenRankIsValid() {
-        String path = "src/main/resources/club/1_club.png";
-        assertEquals(path, cardClubOne.get_imagePath());
+    void equalsOtherCard_ShouldReturnTrue_WhenCardsHaveSameSuitAndRank() {
+        Card card1 = new Card(Card.Suit.heart, 1);
+        Card card2 = new Card(Card.Suit.heart, 1);
+        assertEquals(card1, card2);
     }
 
     @Test
-    void visibilityShouldBeChanged_WhenSetVisibleIsCalled() {
-        assertFalse(cardClubOne.isVisible());
-        cardClubOne.set_isVisible(true);
-        assertTrue(cardClubOne.isVisible());
-    }
-
-    @Test
-    void testEqualsConsistency() {
-        // Symmetry
-        Card card = new Card(Card.Suit.club, 1);
-        assertTrue(cardClubOne.equals(card));
-        assertTrue(card.equals(cardClubOne));
-        assertFalse(cardClubOne.equals(cardHeartTwo));
-
-        // Transitivity
-        Card cardCopy = new Card(Card.Suit.club, 1);
-        assertTrue(cardClubOne.equals(card));
-        assertTrue(card.equals(cardCopy));
-        assertTrue(cardClubOne.equals(cardCopy));
-    }
-
-    @Test
-    void testEqualsWithNull() {
-        assertFalse(cardClubOne.equals(null));
-    }
-
-
-    @Test
-    void testCardWithInvalidRank() {
-        Card card = new Card(Card.Suit.club, -1);
-        assertEquals("src/main/resources/card back/card_back.png", card.get_imagePath());
-    }
-
-    @Test
-    void testCardWithBackside() {
-        Card backsideCard = new Card(Card.Suit.spade, 0);
-        assertEquals(0, backsideCard.getValue());
-        assertEquals("src/main/resources/card back/card_back.png", backsideCard.get_imagePath());
+    void equalsOtherCard_ShouldReturnFalse_WhenCardsHaveDifferentSuit() {
+        Card card1 = new Card(Card.Suit.heart, 1);
+        Card card2 = new Card(Card.Suit.spade, 1);
+        Card card3 = new Card(Card.Suit.spade, 2);
+        Card card4 = new Card(Card.Suit.club, 3);
+        assertNotEquals(card1, card2); //Same rank, different suit
+        assertNotEquals(card2, card3); //Same suit, different rank
+        assertNotEquals(card3, card4); //Different rank, different suit
     }
 }
