@@ -91,7 +91,7 @@ public class Deck {
     }
 
     /**
-     * Used to go one STep back for the Deck and DiscardPile
+     * Used to go one Step back for the Deck and DiscardPile
      * If the discardPile is empty, all cards from the deck are moved to the discardPile
      * If the discardPile is not empty, the top card is moved back to the deck
      */
@@ -148,5 +148,25 @@ public class Deck {
      */
     public boolean isDiscardPileEmpty() {
         return _discardPile.empty();
+    }
+
+    /**
+     * Returns the number of cards in the deck
+     * Used for testing purposes
+     *
+     * @return The number of cards in the deck
+     */
+    public Stack<Card> get_deck() {
+        return _deck;
+    }
+
+    /**
+     * Returns the number of cards in the discardPile
+     * Used for testing purposes
+     *
+     * @return The number of cards in the discardPile
+     */
+    public Stack<Card> get_discardPile() {
+        return _discardPile;
     }
 }
