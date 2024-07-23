@@ -42,6 +42,7 @@ public class Foundation {
      * Checks if a card can be placed on the foundation
      * A card can be placed on the foundation if it is the same suit as the top card of the foundation
      * and its value is one higher
+     * it also has to be the top most card of a tableau
      *
      * @param card      The card to be placed
      * @param isTopCard Has to be true to be a valid move.
@@ -57,13 +58,6 @@ public class Foundation {
             Card topCard = _foundation.peek();
             return topCard.getSuit() == card.getSuit() && topCard.getValue() == card.getValue() - 1;
         }
-    }
-
-    /**
-     * Removes all Cards from a foundation
-     */
-    public void resetFoundation() {
-        _foundation.clear();
     }
 
     /**
