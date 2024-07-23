@@ -14,101 +14,66 @@ class DeckTest {
     }
 
     @Test
-    void drawCardFromDeck_ShouldReturnCard_WhenDeckIsNotEmpty() {
+    void DeckConstructor_shouldHave52Cards() {
+        assertEquals(52, deck.get_deck().size());
+    }
+
+    @Test
+    void DeckConstructor_ShouldAddEveryCardOnce() {
+        for (Card.Suit suit : Card.Suit.values()) {
+            for (int rank = 1; rank <= 13; rank++) {
+                assertTrue(deck.get_deck().contains(new Card(suit, rank)));
+            }
+        }
+    }
+
+    @Test
+    void drawCardFromDeck_shouldReturnCardIfDeckIsNotEmpty() {
         assertNotNull(deck.drawCardFromDeck());
     }
 
     @Test
-    void drawCardFromDeck_ShouldReturnNull_WhenDeckIsEmpty() {
+    void drawCardFromDeck_shouldReturnNullIfDeckIsEmpty() {
+        //Remove all cards from the deck
         for (int i = 0; i < 52; i++) {
-            deck.drawCardFromDeck(); // Empty the deck
+            deck.drawCardFromDeck();
         }
         assertNull(deck.drawCardFromDeck());
     }
 
     @Test
-    void reDealCards_ShouldMoveAllCardsFromDiscardPileToDeck() {
-        Card card = deck.drawCardFromDeck();
-        deck.placeCardOnDiscardPile(card);
+    void reDealCards_shouldMoveAllCardsFromDiscardPileToDeck() {
+        //Remove all cards from the deck and add them to the discardPile
+        for (int i = 0; i < 52; i++) {
+            deck.placeCardOnDiscardPile(deck.drawCardFromDeck());
+        }
+        assertEquals(0, deck.get_deck().size());
+        assertEquals(52, deck.get_discardPile().size());
         deck.reDealCards();
-        assertFalse(deck.isDeckEmpty());
-        assertTrue(deck.isDiscardPileEmpty());
+        assertEquals(52, deck.get_deck().size());
+        assertEquals(0, deck.get_discardPile().size());
     }
 
     @Test
-    void placeCardOnDiscardPile_ShouldAddCardToDiscardPile() {
-        Card card = new Card(Card.Suit.heart, 1);
-        deck.placeCardOnDiscardPile(card);
-        assertFalse(deck.isDiscardPileEmpty());
-    }
-
-    @Test
-    void removeCardFromDiscardPile_ShouldThrowException_WhenDiscardPileIsEmpty() {
-        assertThrows(RuntimeException.class, deck::removeCardFromDiscardPile);
-    }
-
-    @Test
-    void drawCardForInit_ShouldReturnCard_WhenDeckIsNotEmpty() {
-        assertNotNull(deck.drawCardForInit());
-    }
-
-    @Test
-    void drawCardForInit_ShouldThrowException_WhenDeckIsEmpty() {
+    void stepBack_ShouldMoveAllCardsToDiscardPile_WhenDiscardPileIsEmpty() {
         for (int i = 0; i < 52; i++) {
-            deck.drawCardFromDeck(); // Empty the deck
+            deck.placeCardOnDiscardPile(deck.drawCardFromDeck());
         }
-        assertThrows(RuntimeException.class, deck::drawCardForInit);
-    }
-
-    @Test
-    void peekDeck_ShouldReturnTopCard_WithoutRemovingIt() {
-        Card topCard = deck.peekDeck();
-        assertNotNull(topCard);
-        assertFalse(deck.isDeckEmpty()); // Deck should still be full
-    }
-
-    @Test
-    void peekDeck_ShouldReturnNull_WhenDeckIsEmpty() {
+        deck.reDealCards();
+        deck.stepBack();
         for (int i = 0; i < 52; i++) {
-            deck.drawCardFromDeck(); // Empty the deck
+            assertTrue(deck.get_discardPile().get(i).isVisible());
         }
-        assertNull(deck.peekDeck());
+        assertEquals(0, deck.get_deck().size());
+        assertEquals(52, deck.get_discardPile().size());
     }
 
     @Test
-    void peekDiscardPile_ShouldReturnTopCard_WithoutRemovingIt() {
-        Card card = deck.drawCardFromDeck();
-        deck.placeCardOnDiscardPile(card);
-        assertNotNull(deck.peekDiscardPile());
+    void stepBack_ShouldPutTopDiscardPileCardBackToDeck_WhenDiscardPileIsNotEmpty() {
+        deck.placeCardOnDiscardPile(deck.drawCardFromDeck());
+        deck.stepBack();
+        assertEquals(1, deck.get_deck().size());
+        assertEquals(0, deck.get_discardPile().size());
     }
 
-    @Test
-    void peekDiscardPile_ShouldReturnNull_WhenDiscardPileIsEmpty() {
-        assertNull(deck.peekDiscardPile());
-    }
-
-    @Test
-    void isDeckEmpty_ShouldReturnFalse_WhenDeckIsNotEmpty() {
-        assertFalse(deck.isDeckEmpty());
-    }
-
-    @Test
-    void isDeckEmpty_ShouldReturnTrue_WhenDeckIsEmpty() {
-        for (int i = 0; i < 52; i++) {
-            deck.drawCardFromDeck(); // Empty the deck
-        }
-        assertTrue(deck.isDeckEmpty());
-    }
-
-    @Test
-    void isDiscardPileEmpty_ShouldReturnTrue_WhenDiscardPileIsEmpty() {
-        assertTrue(deck.isDiscardPileEmpty());
-    }
-
-    @Test
-    void isDiscardPileEmpty_ShouldReturnFalse_WhenDiscardPileIsNotEmpty() {
-        Card card = deck.drawCardFromDeck();
-        deck.placeCardOnDiscardPile(card);
-        assertFalse(deck.isDiscardPileEmpty());
-    }
 }
