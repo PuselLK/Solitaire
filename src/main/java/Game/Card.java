@@ -114,7 +114,7 @@ public class Card {
      * @param otherCard The card to compare with.
      * @return true if both cards have the same suit and rank, false otherwise.
      */
-    public boolean equals(Card otherCard) {
+    public boolean equalsOtherCard(Card otherCard) {
         if (otherCard == null) {
             return false;
         }
