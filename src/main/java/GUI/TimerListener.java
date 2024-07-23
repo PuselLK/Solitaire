@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
  * TimerListener class that updates the time label every second
  */
 public class TimerListener implements ActionListener {
-    private final long _startTime;
+    private long _startTime;
     private final JLabel _timeLabel;
 
     public TimerListener(long startTime, JLabel timeLabel) {
@@ -33,5 +33,9 @@ public class TimerListener implements ActionListener {
         long minutes = (elapsedTime / 60000) % 60;
         long seconds = (elapsedTime / 1000) % 60;
         _timeLabel.setText("Elapsed time: " + String.format("%02d:%02d:%02d", hours, minutes, seconds));
+    }
+
+    public void resetTimer() {
+        _startTime = System.currentTimeMillis();
     }
 }

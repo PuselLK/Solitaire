@@ -3,6 +3,9 @@ package Game;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a move in the game. This can be a card drawn or moved around the game
+ */
 public class GameMove {
     private final List<Card> _movedCards;
     private final Object _origin;

@@ -5,6 +5,9 @@ import Game.Solitaire;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * The main class for the Solitaire GUI
+ */
 public class SolitaireGui {
 
     public static void main(String[] args) {
@@ -29,11 +32,6 @@ public class SolitaireGui {
 
         GamePanel gamePanel = new GamePanel(_solitaire, _screenWidth, _screenHeight);
         _frame.add(gamePanel.getMainPane(), BorderLayout.CENTER);
-
-        long _elapsedTime = 0;
-        long _startTime = System.currentTimeMillis() - _elapsedTime;
-        Timer timer = new Timer(1000, new TimerListener(_startTime, toolbarPanel.getTimeLabel()));
-        timer.start();
 
         _frame.setVisible(true);
         GamePanel.renderGameState();

@@ -8,21 +8,35 @@ import java.util.Stack;
  * Contains the Deck, the Foundations and the Tableaus.
  */
 public class Solitaire {
-    private final Deck _deck;
-    private final Foundation[] _foundationsArray;
-    private final Tableau[] _tableausArray;
-    private final Stack<GameMove> _gameMoves;
+    private Deck _deck;
+    private Foundation[] _foundationsArray;
+    private Tableau[] _tableausArray;
+    private Stack<GameMove> _gameMoves;
 
     /**
      * Constructor for the Solitaire class.
-     * Initializes the Deck, the Foundations and the Tableaus.
+     */
+    public Solitaire() {
+        startSolitaireGame();
+    }
+
+    /**
+     * Restarts the Solitaire game.
+     */
+    public void restart() {
+        startSolitaireGame();
+    }
+
+    /**
+     * Initializes the Solitaire game.
+     * Creates a new Deck, 4 Foundations and 7 Tableaus.
      * The Deck is initialized with 52 Cards.
      * The Foundations are initialized with 4 empty Stacks.
      * The Tableaus are initialized with 7 Stacks of Cards.
      * The first Tableau has 1 Card, the second 2 Cards, the third 3 Cards and so on.
      * The top Card of each Tableau is set visible.
      */
-    public Solitaire() {
+    private void startSolitaireGame() {
         _deck = new Deck();
 
         _foundationsArray = new Foundation[4];
@@ -139,41 +153,38 @@ public class Solitaire {
      * @throws RuntimeException if the origin is a Deck or Foundation
      */
     private void removeCardIfNotTop(Object origin, Card card, GameMove gameMove) {
-        if (origin instanceof Deck) {
-            throw new RuntimeException("Clicked a Card on the Discard Pile that is not the top Card");
-        } else if (origin instanceof Foundation) {
-            throw new RuntimeException("Clicked a Card on the Foundation that is not the top Card");
-        } else if (origin instanceof Tableau tableau) {
-            Stack<Card> cardsOnTop = new Stack<>();
+        if (!(origin instanceof Tableau tableau)) {
+            throw new RuntimeException("Clicked a Card on the Discard Pile or Foundation that is not the top Card");
+        }
+        Stack<Card> cardsOnTop = new Stack<>();
 
-            for (int i = tableau.getTableauSize(); i > 0; i--) {
-                // remove all cards on top of the clicked card including the clicked card
-                cardsOnTop.push(tableau.pickUpCard());
-                if (cardsOnTop.peek().equals(card)) {
-                    break;
-                }
+        for (int i = tableau.getTableauSize(); i > 0; i--) {
+            // remove all cards on top of the clicked card including the clicked card
+            cardsOnTop.push(tableau.pickUpCard());
+            if (cardsOnTop.peek().equalsOtherCard(card)) {
+                break;
             }
-            // set the next card visible
-            Card topCard = tableau.peekTableau();
-            if (topCard != null) {
-                if (topCard.isVisible()) {
-                    gameMove.setTableauCardWasVisible(true);
-                }
-                topCard.set_isVisible(true);
+        }
+        // set the next card visible
+        Card topCard = tableau.peekTableau();
+        if (topCard != null) {
+            if (topCard.isVisible()) {
+                gameMove.setTableauCardWasVisible(true);
             }
+            topCard.set_isVisible(true);
+        }
 
-            // remove the clicked card since it already has been placed in the top most else if
-            cardsOnTop.pop();
+        // remove the clicked card since it already has been placed
+        cardsOnTop.pop();
 
-            // place all cards on top of the clicked card to the tableau excluding the clicked card
-            Object newOrigin = findCardOrigin(card);
-            if (newOrigin instanceof Deck || newOrigin instanceof Foundation || newOrigin == null) {
-                throw new RuntimeException("Card has been moved to a Foundation or Deck/discardPile even though " +
-                        "it was not the top card or the Card was not found.");
-            }
-            while (!cardsOnTop.isEmpty()) {
-                ((Tableau) newOrigin).placeCard(cardsOnTop.pop());
-            }
+        // place all cards on top of the clicked card to the tableau excluding the clicked card
+        Object newOrigin = findCardOrigin(card);
+        if (!(newOrigin instanceof Tableau newTableau)) {
+            throw new RuntimeException("Card has been moved to a Foundation or Deck/discardPile even though " +
+                    "it was not the top card or the Card was not found.");
+        }
+        while (!cardsOnTop.isEmpty()) {
+            newTableau.placeCard(cardsOnTop.pop());
         }
     }
 
@@ -216,11 +227,11 @@ public class Solitaire {
      */
     private boolean isCardTopCard(Card card, Object origin) {
         if (origin instanceof Deck) {
-            return _deck.peekDiscardPile().equals(card);
+            return _deck.peekDiscardPile().equalsOtherCard(card);
         } else if (origin instanceof Tableau) {
-            return ((Tableau) origin).peekTableau().equals(card);
+            return ((Tableau) origin).peekTableau().equalsOtherCard(card);
         } else if (origin instanceof Foundation) {
-            return ((Foundation) origin).peekFoundation().equals(card);
+            return ((Foundation) origin).peekFoundation().equalsOtherCard(card);
         }
         return false;
 
@@ -258,14 +269,14 @@ public class Solitaire {
      * @return The origin of the card
      */
     private Object findCardOrigin(Card card) {
-        if (_deck.peekDiscardPile() != null && _deck.peekDiscardPile().equals(card)) {
+        if (_deck.peekDiscardPile() != null && _deck.peekDiscardPile().equalsOtherCard(card)) {
             return _deck;
         }
 
         // Tableau
         for (Tableau tableau : _tableausArray) {
             for (Card tableauCard : tableau.get_tableau()) {
-                if (tableauCard.equals(card)) {
+                if (tableauCard.equalsOtherCard(card)) {
                     return tableau;
                 }
             }
@@ -273,7 +284,7 @@ public class Solitaire {
 
         // Foundation
         for (Foundation foundation : _foundationsArray) {
-            if (foundation.peekFoundation() != null && foundation.peekFoundation().equals(card)) {
+            if (foundation.peekFoundation() != null && foundation.peekFoundation().equalsOtherCard(card)) {
                 return foundation;
             }
         }
@@ -327,57 +338,116 @@ public class Solitaire {
         assert destination != null;
         for (int i = destination.get_tableau().size() - 1; i >= 0; i--) {
             gameMove.addCard(destination.get_tableau().get(i));
-            if (destination.get_tableau().get(i).equals(card)) {
+            if (destination.get_tableau().get(i).equalsOtherCard(card)) {
                 break;
             }
         }
     }
 
+    /**
+     * Steps back one move in the game, if possible.
+     */
     public void stepBack() {
-        if (!_gameMoves.isEmpty()) {
-            GameMove gameMove = _gameMoves.pop();
-            List<Card> movedCards = gameMove.getMovedCards();
-            Object origin = gameMove.getOrigin();
-            Object destination = gameMove.getDestination();
+        if (_gameMoves.isEmpty()) {
+            return;
+        }
 
-            if (origin instanceof Deck && destination instanceof Deck) {
-                _deck.stepBack();
-            } else if (origin instanceof Deck deck && destination instanceof Foundation foundation) {
-                foundation.pickUpCard();
-                deck.placeCardOnDiscardPile(movedCards.get(0));
-            } else if (origin instanceof Deck deck && destination instanceof Tableau tableau) {
-                tableau.pickUpCard();
-                deck.placeCardOnDiscardPile(movedCards.get(0));
-            } else if (origin instanceof Tableau tableauOrigin && destination instanceof Tableau tableauDestination) {
-                //Pick up the cards that were placed on the destination tableau including the card that was clicked
-                for (Card ignored : movedCards) {
-                    tableauDestination.pickUpCard();
-                }
-                if (!tableauOrigin.isEmpty() && !gameMove.getTableauCardWasVisible()) {
-                    tableauOrigin.peekTableau().set_isVisible(false);
-                }
+        GameMove gameMove = _gameMoves.pop();
+        List<Card> movedCards = gameMove.getMovedCards();
+        Object origin = gameMove.getOrigin();
+        Object destination = gameMove.getDestination();
 
-                //Place the cards back to the origin tableau
-                for (int i = movedCards.size() - 1; i >= 0; i--) {
-                    tableauOrigin.placeCard(movedCards.get(i));
-                }
+        if (origin instanceof Deck) {
+            handleDeckStepBack(movedCards, destination);
+        } else if (origin instanceof Tableau) {
+            handleTableauStepBack(gameMove, movedCards, (Tableau) origin, destination);
+        } else if (origin instanceof Foundation) {
+            handleFoundationStepBack(movedCards, (Foundation) origin, destination);
+        }
+    }
 
-            } else if (origin instanceof Tableau tableau && destination instanceof Foundation foundation) {
-                foundation.pickUpCard();
-                if (!tableau.isEmpty() && !gameMove.getTableauCardWasVisible()) {
-                    tableau.peekTableau().set_isVisible(false);
-                }
-                tableau.placeCard(movedCards.get(0));
+    /**
+     * Handles the step back logic when the origin is a Deck.
+     *
+     * @param movedCards  The list of cards that were moved.
+     * @param destination The destination from where the cards were moved.
+     */
+    private void handleDeckStepBack(List<Card> movedCards, Object destination) {
+        if (destination instanceof Deck) {
+            _deck.stepBack();
+        } else if (destination instanceof Foundation foundation) {
+            foundation.pickUpCard();
+            _deck.placeCardOnDiscardPile(movedCards.get(0));
+        } else if (destination instanceof Tableau tableau) {
+            tableau.pickUpCard();
+            _deck.placeCardOnDiscardPile(movedCards.get(0));
+        }
+    }
 
-            } else if (origin instanceof Foundation foundation && destination instanceof Tableau tableau) {
-                tableau.pickUpCard();
-                foundation.placeCard(movedCards.get(0));
+    /**
+     * Handles the step back logic when the origin is a Tableau.
+     *
+     * @param gameMove    The game move object containing move details.
+     * @param movedCards  The list of cards that were moved.
+     * @param origin      The originating tableau from which cards were moved.
+     * @param destination The destination where the cards were moved.
+     */
+    private void handleTableauStepBack(GameMove gameMove, List<Card> movedCards, Tableau origin, Object destination) {
+        if (destination instanceof Tableau destinationTableau) {
+            moveCardsBetweenTableaus(gameMove, movedCards, origin, destinationTableau);
+        } else if (destination instanceof Foundation foundation) {
+            foundation.pickUpCard();
+            handleTableauVisibility(gameMove, origin);
+            origin.placeCard(movedCards.get(0));
+        }
+    }
 
-            } else if (origin instanceof Foundation foundationOrigin && destination instanceof Foundation foundationDestination) {
-                foundationDestination.pickUpCard();
-                foundationOrigin.placeCard(movedCards.get(0));
+    /**
+     * Handles the step back logic when the origin is a Foundation.
+     *
+     * @param movedCards  The list of cards that were moved.
+     * @param origin      The originating foundation from which cards were moved.
+     * @param destination The destination where the cards were moved.
+     */
+    private void handleFoundationStepBack(List<Card> movedCards, Foundation origin, Object destination) {
+        if (destination instanceof Tableau tableau) {
+            tableau.pickUpCard();
+            origin.placeCard(movedCards.get(0));
+        } else if (destination instanceof Foundation foundationDestination) {
+            foundationDestination.pickUpCard();
+            origin.placeCard(movedCards.get(0));
+        }
+    }
 
-            }
+    /**
+     * Ensures the visibility of the cards in the tableau is correctly managed.
+     *
+     * @param gameMove The game move object containing move details.
+     * @param tableau  The tableau whose visibility is being managed.
+     */
+    private void handleTableauVisibility(GameMove gameMove, Tableau tableau) {
+        if (!tableau.isEmpty() && !gameMove.getTableauCardWasVisible()) {
+            tableau.peekTableau().set_isVisible(false);
+        }
+    }
+
+    /**
+     * Manages the movement of cards between Tableaus when stepping back.
+     *
+     * @param gameMove    The game move object containing move details.
+     * @param movedCards  The list of cards that were moved.
+     * @param origin      The originating tableau from which cards were moved.
+     * @param destination The destination tableau to which cards were moved.
+     */
+    private void moveCardsBetweenTableaus(GameMove gameMove, List<Card> movedCards, Tableau origin, Tableau destination) {
+        for (Card ignored : movedCards) {
+            destination.pickUpCard();
+        }
+
+        handleTableauVisibility(gameMove, origin);
+
+        for (int i = movedCards.size() - 1; i >= 0; i--) {
+            origin.placeCard(movedCards.get(i));
         }
     }
 

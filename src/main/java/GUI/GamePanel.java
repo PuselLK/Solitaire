@@ -42,10 +42,10 @@ public class GamePanel {
         _foundationPanels = createFoundationPanels(screenWidth, screenHeight);
         topPanel.add(_foundationPanels);
 
-        _discardPilePanel = createBorderPanel(DISCARD_PILE, screenWidth, screenHeight);
+        _discardPilePanel = createDeckPanel(DISCARD_PILE, screenWidth, screenHeight);
         topPanel.add(_discardPilePanel, BorderLayout.EAST);
 
-        _deckPanel = createBorderPanel(DECK, screenWidth, screenHeight);
+        _deckPanel = createDeckPanel(DECK, screenWidth, screenHeight);
         topPanel.add(_deckPanel, BorderLayout.EAST);
 
         _tableauPanels = createTableauPanels(screenWidth, screenHeight);
@@ -71,7 +71,14 @@ public class GamePanel {
         _mainPane.repaint();
 
         if (_solitaire.isGameFinished()) {
-            JOptionPane.showMessageDialog(_mainPane, "Congratulations! You have won the game!");
+            JOptionPane.showOptionDialog(_mainPane, "Would you like to play again?", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+            if (JOptionPane.YES_OPTION == 0) {
+                _solitaire.restart();
+                ToolbarPanel.resetTimer();
+                GamePanel.renderGameState();
+            } else if (JOptionPane.NO_OPTION == 1) {
+                System.exit(0);
+            }
         }
     }
 
@@ -145,14 +152,15 @@ public class GamePanel {
     }
 
     /**
-     * Creates a border panel with the given title
+     * Creates a deck panel with the given title
+     * used for the deck and discard pile
      *
      * @param title        The title of the panel
      * @param screenWidth  The width of the screen
      * @param screenHeight The height of the screen
      * @return The border panel
      */
-    private JPanel createBorderPanel(String title, double screenWidth, double screenHeight) {
+    private JPanel createDeckPanel(String title, double screenWidth, double screenHeight) {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension((int) (screenWidth / 8), (int) (screenHeight * 0.25)));
 

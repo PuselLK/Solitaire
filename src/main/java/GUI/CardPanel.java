@@ -253,7 +253,7 @@ public class CardPanel {
         }
 
         resetDragLayerComponents(parentContainer);
-        renderGameState();
+        GamePanel.renderGameState();
     }
 
     /**
