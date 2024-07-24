@@ -83,7 +83,7 @@ class CardTest {
     }
 
     @Test
-    void equalsOtherCard_ShouldReturnFalse_WhenCardsHaveDifferentSuit() {
+    void equals_ShouldReturnFalse_WhenCardsHaveDifferentSuit() {
         Card card1 = new Card(Card.Suit.heart, 1);
         Card card2 = new Card(Card.Suit.spade, 1);
         Card card3 = new Card(Card.Suit.spade, 2);
@@ -91,5 +91,12 @@ class CardTest {
         assertNotEquals(card1, card2); //Same rank, different suit
         assertNotEquals(card2, card3); //Same suit, different rank
         assertNotEquals(card3, card4); //Different rank, different suit
+    }
+
+    @Test
+    void hashCode_ShouldReturnSameHashCode_WhenCardsHaveSameSuitAndRank() {
+        Card card1 = new Card(Card.Suit.heart, 1);
+        Card card2 = new Card(Card.Suit.heart, 1);
+        assertEquals(card1.hashCode(), card2.hashCode());
     }
 }
