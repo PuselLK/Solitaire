@@ -17,14 +17,14 @@ public class Solitaire {
      * Constructor for the Solitaire class.
      */
     public Solitaire() {
-        startSolitaireGame();
+        initializeGame();
     }
 
     /**
      * Restarts the Solitaire game.
      */
     public void restart() {
-        startSolitaireGame();
+        initializeGame();
     }
 
     /**
@@ -36,7 +36,7 @@ public class Solitaire {
      * The first Tableau has 1 Card, the second 2 Cards, the third 3 Cards and so on.
      * The top Card of each Tableau is set visible.
      */
-    private void startSolitaireGame() {
+    private void initializeGame() {
         _deck = new Deck();
 
         _foundationsArray = new Foundation[4];
@@ -66,7 +66,7 @@ public class Solitaire {
      * @return True if the card was placed successfully, false otherwise
      */
     public boolean placeCardOnClick(Card card) {
-        Object origin = findCardOrigin(card);
+        CardHolder origin = findCardOrigin(card);
         boolean isTopCard = isCardTopCard(card, origin);
         GameMove gameMove = new GameMove(origin, null);
 
@@ -99,7 +99,7 @@ public class Solitaire {
      * @return True if the card was placed successfully, false otherwise
      */
     public boolean placeCardOnDrag(Card card, int targetIndex, String targetType) {
-        Object origin = findCardOrigin(card);
+        CardHolder origin = findCardOrigin(card);
         boolean isTopCard = isCardTopCard(card, origin);
         GameMove gameMove = new GameMove(origin, null);
 
@@ -128,7 +128,7 @@ public class Solitaire {
      *
      * @param origin The card to be removed
      */
-    private void removeCardIfTop(Object origin, GameMove gameMove) {
+    private void removeCardIfTop(CardHolder origin, GameMove gameMove) {
         if (origin instanceof Deck) {
             _deck.removeCardFromDiscardPile();
         } else if (origin instanceof Foundation foundation) {
@@ -152,7 +152,7 @@ public class Solitaire {
      * @param card   The card to be removed
      * @throws RuntimeException if the origin is a Deck or Foundation
      */
-    private void removeCardIfNotTop(Object origin, Card card, GameMove gameMove) {
+    private void removeCardIfNotTop(CardHolder origin, Card card, GameMove gameMove) {
         if (!(origin instanceof Tableau tableau)) {
             throw new RuntimeException("Clicked a Card on the Discard Pile or Foundation that is not the top Card");
         }
@@ -178,7 +178,7 @@ public class Solitaire {
         cardsOnTop.pop();
 
         // place all cards on top of the clicked card to the tableau excluding the clicked card
-        Object newOrigin = findCardOrigin(card);
+        CardHolder newOrigin = findCardOrigin(card);
         if (!(newOrigin instanceof Tableau newTableau)) {
             throw new RuntimeException("Card has been moved to a Foundation or Deck/discardPile even though " +
                     "it was not the top card or the Card was not found.");
@@ -225,7 +225,7 @@ public class Solitaire {
      * @param origin The origin of the card
      * @return True if the card is the top card of the origin, false otherwise
      */
-    private boolean isCardTopCard(Card card, Object origin) {
+    private boolean isCardTopCard(Card card, CardHolder origin) {
         if (origin instanceof Deck) {
             return _deck.peekDiscardPile().equals(card);
         } else if (origin instanceof Tableau) {
@@ -268,7 +268,7 @@ public class Solitaire {
      * @param card The card to find the origin of
      * @return The origin of the card
      */
-    private Object findCardOrigin(Card card) {
+    private CardHolder findCardOrigin(Card card) {
         if (_deck.peekDiscardPile() != null && _deck.peekDiscardPile().equals(card)) {
             return _deck;
         }
@@ -354,8 +354,8 @@ public class Solitaire {
 
         GameMove gameMove = _gameMoves.pop();
         List<Card> movedCards = gameMove.getMovedCards();
-        Object origin = gameMove.getOrigin();
-        Object destination = gameMove.getDestination();
+        CardHolder origin = gameMove.getOrigin();
+        CardHolder destination = gameMove.getDestination();
 
         if (origin instanceof Deck) {
             handleDeckStepBack(movedCards, destination);
@@ -372,7 +372,7 @@ public class Solitaire {
      * @param movedCards  The list of cards that were moved.
      * @param destination The destination from where the cards were moved.
      */
-    private void handleDeckStepBack(List<Card> movedCards, Object destination) {
+    private void handleDeckStepBack(List<Card> movedCards, CardHolder destination) {
         if (destination instanceof Deck) {
             _deck.stepBack();
         } else if (destination instanceof Foundation foundation) {
@@ -392,7 +392,7 @@ public class Solitaire {
      * @param origin      The originating tableau from which cards were moved.
      * @param destination The destination where the cards were moved.
      */
-    private void handleTableauStepBack(GameMove gameMove, List<Card> movedCards, Tableau origin, Object destination) {
+    private void handleTableauStepBack(GameMove gameMove, List<Card> movedCards, Tableau origin, CardHolder destination) {
         if (destination instanceof Tableau destinationTableau) {
             moveCardsBetweenTableaus(gameMove, movedCards, origin, destinationTableau);
         } else if (destination instanceof Foundation foundation) {
@@ -409,7 +409,7 @@ public class Solitaire {
      * @param origin      The originating foundation from which cards were moved.
      * @param destination The destination where the cards were moved.
      */
-    private void handleFoundationStepBack(List<Card> movedCards, Foundation origin, Object destination) {
+    private void handleFoundationStepBack(List<Card> movedCards, Foundation origin, CardHolder destination) {
         if (destination instanceof Tableau tableau) {
             tableau.pickUpCard();
             origin.placeCard(movedCards.get(0));

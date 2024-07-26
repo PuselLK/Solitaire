@@ -8,11 +8,11 @@ import java.util.List;
  */
 public class GameMove {
     private final List<Card> _movedCards;
-    private final Object _origin;
-    private Object _destination;
+    private final CardHolder _origin;
+    private CardHolder _destination;
     private boolean _tableauCardWasVisible;
 
-    public GameMove(Object origin, Object destination) {
+    public GameMove(CardHolder origin, CardHolder destination) {
         _movedCards = new ArrayList<>();
         _origin = origin;
         _destination = destination;
@@ -23,7 +23,7 @@ public class GameMove {
         _movedCards.add(card);
     }
 
-    public void set_destination(Object destination) {
+    public void set_destination(CardHolder destination) {
         _destination = destination;
     }
 
@@ -31,11 +31,11 @@ public class GameMove {
         return _movedCards;
     }
 
-    public Object getOrigin() {
+    public CardHolder getOrigin() {
         return _origin;
     }
 
-    public Object getDestination() {
+    public CardHolder getDestination() {
         return _destination;
     }
 

@@ -6,7 +6,7 @@ import java.util.Stack;
  * Represents a tableau in a game of solitaire. A tableau is a stack of cards, where each card
  * must be of the opposite color and one value lower than the previous card.
  */
-public class Tableau {
+public class Tableau implements CardHolder {
     private final Stack<Card> _tableau;
 
     /**
