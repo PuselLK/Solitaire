@@ -1,6 +1,5 @@
 package Game;
 
-import java.util.List;
 import java.util.Stack;
 
 /**
@@ -11,12 +10,13 @@ public class Solitaire {
     private Deck _deck;
     private Foundation[] _foundationsArray;
     private Tableau[] _tableausArray;
-    private Stack<GameMove> _gameMoves;
+    private final GameMoveManager _gameMoveManager;
 
     /**
      * Constructor for the Solitaire class.
      */
     public Solitaire() {
+        _gameMoveManager = new GameMoveManager();
         initializeGame();
     }
 
@@ -24,6 +24,7 @@ public class Solitaire {
      * Restarts the Solitaire game.
      */
     public void restart() {
+        _gameMoveManager.clearGameMoves();
         initializeGame();
     }
 
@@ -48,12 +49,11 @@ public class Solitaire {
         for (int i = 0; i < _tableausArray.length; i++) {
             Stack<Card> tableau = new Stack<>();
             for (int j = 0; j <= i; j++) {
-                tableau.push(_deck.drawCardForInit());
+                tableau.push(_deck.drawCardFromDeck());
             }
             _tableausArray[i] = new Tableau(tableau);
             _tableausArray[i].peekTableau().set_isVisible(true);
         }
-        _gameMoves = new Stack<>();
     }
 
     /**
@@ -75,13 +75,13 @@ public class Solitaire {
 
             gameMove.set_destination(findCardOrigin(card));
             gameMove.addCard(card);
-            _gameMoves.push(gameMove);
+            _gameMoveManager.addGameMove(gameMove);
             return true;
         } else if (!isTopCard && placeCardAlgorithm(card, false)) {
             removeCardIfNotTop(origin, card, gameMove);
 
-            doGameMoveStuff(card, gameMove);
-            _gameMoves.push(gameMove);
+            addAttachedCardsToGameMove(card, gameMove);
+            _gameMoveManager.addGameMove(gameMove);
             return true;
         }
         return false;
@@ -109,14 +109,14 @@ public class Solitaire {
 
             gameMove.set_destination(findCardOrigin(card));
             gameMove.addCard(card);
-            _gameMoves.push(gameMove);
+            _gameMoveManager.addGameMove(gameMove);
             return true;
         } else if ((!isTopCard && targetType.equals("Foundation") && placeCardOnFoundation(card, targetIndex, false)) ||
                 (!isTopCard && targetType.equals("Tableau") && placeCardOnTableau(card, targetIndex))) {
             removeCardIfNotTop(origin, card, gameMove);
 
-            doGameMoveStuff(card, gameMove);
-            _gameMoves.push(gameMove);
+            addAttachedCardsToGameMove(card, gameMove);
+            _gameMoveManager.addGameMove(gameMove);
             return true;
         }
         return false;
@@ -297,7 +297,7 @@ public class Solitaire {
      * @return The card drawn from the deck
      */
     public Card drawCardFromDeck() {
-        _gameMoves.push(new GameMove(_deck, _deck));
+        _gameMoveManager.addGameMove(new GameMove(_deck, _deck));
 
         return _deck.drawCardFromDeck();
     }
@@ -313,7 +313,7 @@ public class Solitaire {
      * Puts all the cards from the discardPile back into the deck and sets their visibility to false
      */
     public void reDealCards() {
-        _gameMoves.push(new GameMove(_deck, _deck));
+        _gameMoveManager.addGameMove(new GameMove(_deck, _deck));
         _deck.reDealCards();
     }
 
@@ -332,7 +332,13 @@ public class Solitaire {
         return true;
     }
 
-    private void doGameMoveStuff(Card card, GameMove gameMove) {
+    /**
+     * Adds all Cards above the clicked/dragged to the GameMove moved Cards list
+     *
+     * @param card     The card to be moved
+     * @param gameMove The game move object containing move details
+     */
+    private void addAttachedCardsToGameMove(Card card, GameMove gameMove) {
         Tableau destination = (Tableau) findCardOrigin(card);
         gameMove.set_destination(destination);
         assert destination != null;
@@ -344,111 +350,8 @@ public class Solitaire {
         }
     }
 
-    /**
-     * Steps back one move in the game, if possible.
-     */
     public void stepBack() {
-        if (_gameMoves.isEmpty()) {
-            return;
-        }
-
-        GameMove gameMove = _gameMoves.pop();
-        List<Card> movedCards = gameMove.getMovedCards();
-        CardHolder origin = gameMove.getOrigin();
-        CardHolder destination = gameMove.getDestination();
-
-        if (origin instanceof Deck) {
-            handleDeckStepBack(movedCards, destination);
-        } else if (origin instanceof Tableau) {
-            handleTableauStepBack(gameMove, movedCards, (Tableau) origin, destination);
-        } else if (origin instanceof Foundation) {
-            handleFoundationStepBack(movedCards, (Foundation) origin, destination);
-        }
-    }
-
-    /**
-     * Handles the step back logic when the origin is a Deck.
-     *
-     * @param movedCards  The list of cards that were moved.
-     * @param destination The destination from where the cards were moved.
-     */
-    private void handleDeckStepBack(List<Card> movedCards, CardHolder destination) {
-        if (destination instanceof Deck) {
-            _deck.stepBack();
-        } else if (destination instanceof Foundation foundation) {
-            foundation.pickUpCard();
-            _deck.placeCardOnDiscardPile(movedCards.get(0));
-        } else if (destination instanceof Tableau tableau) {
-            tableau.pickUpCard();
-            _deck.placeCardOnDiscardPile(movedCards.get(0));
-        }
-    }
-
-    /**
-     * Handles the step back logic when the origin is a Tableau.
-     *
-     * @param gameMove    The game move object containing move details.
-     * @param movedCards  The list of cards that were moved.
-     * @param origin      The originating tableau from which cards were moved.
-     * @param destination The destination where the cards were moved.
-     */
-    private void handleTableauStepBack(GameMove gameMove, List<Card> movedCards, Tableau origin, CardHolder destination) {
-        if (destination instanceof Tableau destinationTableau) {
-            moveCardsBetweenTableaus(gameMove, movedCards, origin, destinationTableau);
-        } else if (destination instanceof Foundation foundation) {
-            foundation.pickUpCard();
-            handleTableauVisibility(gameMove, origin);
-            origin.placeCard(movedCards.get(0));
-        }
-    }
-
-    /**
-     * Handles the step back logic when the origin is a Foundation.
-     *
-     * @param movedCards  The list of cards that were moved.
-     * @param origin      The originating foundation from which cards were moved.
-     * @param destination The destination where the cards were moved.
-     */
-    private void handleFoundationStepBack(List<Card> movedCards, Foundation origin, CardHolder destination) {
-        if (destination instanceof Tableau tableau) {
-            tableau.pickUpCard();
-            origin.placeCard(movedCards.get(0));
-        } else if (destination instanceof Foundation foundationDestination) {
-            foundationDestination.pickUpCard();
-            origin.placeCard(movedCards.get(0));
-        }
-    }
-
-    /**
-     * Ensures the visibility of the cards in the tableau is correctly managed.
-     *
-     * @param gameMove The game move object containing move details.
-     * @param tableau  The tableau whose visibility is being managed.
-     */
-    private void handleTableauVisibility(GameMove gameMove, Tableau tableau) {
-        if (!tableau.isEmpty() && !gameMove.getTableauCardWasVisible()) {
-            tableau.peekTableau().set_isVisible(false);
-        }
-    }
-
-    /**
-     * Manages the movement of cards between Tableaus when stepping back.
-     *
-     * @param gameMove    The game move object containing move details.
-     * @param movedCards  The list of cards that were moved.
-     * @param origin      The originating tableau from which cards were moved.
-     * @param destination The destination tableau to which cards were moved.
-     */
-    private void moveCardsBetweenTableaus(GameMove gameMove, List<Card> movedCards, Tableau origin, Tableau destination) {
-        for (Card ignored : movedCards) {
-            destination.pickUpCard();
-        }
-
-        handleTableauVisibility(gameMove, origin);
-
-        for (int i = movedCards.size() - 1; i >= 0; i--) {
-            origin.placeCard(movedCards.get(i));
-        }
+        _gameMoveManager.stepBack();
     }
 
     //Getter methods----------------------------------------------

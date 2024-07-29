@@ -65,47 +65,28 @@ public class Deck implements CardHolder {
     }
 
     /**
+     * Places the given card on the deck and sets its visibility to false
+     *
+     * @param card The card to be placed
+     */
+    public void placeCardOnDeck(Card card) {
+        card.set_isVisible(false);
+        _deck.push(card);
+    }
+
+    /**
      * Pops a Card from the discardPile.
      * throws an Exception if the discardPile is empty which should not happen
      * because it can only be accessed via GUI when there is a ClickableLabel
      * and therefore a Card
+     *
+     * @return The card drawn from the discardPile
      */
-    public void removeCardFromDiscardPile() {
+    public Card removeCardFromDiscardPile() {
         if (_discardPile.empty()) {
             throw new RuntimeException("Discard pile is empty");
         }
-        _discardPile.pop();
-    }
-
-    /**
-     * Pops a card from the deck for the initial setup
-     * throws an Exception if the deck is empty which should not happen
-     *
-     * @return The card drawn from the deck
-     */
-    public Card drawCardForInit() {
-        if (_deck.empty()) {
-            throw new RuntimeException("Deck is empty");
-        }
-        return _deck.pop();
-    }
-
-    /**
-     * Used to go one Step back for the Deck and DiscardPile
-     * If the discardPile is empty, all cards from the deck are moved to the discardPile
-     * If the discardPile is not empty, the top card is moved back to the deck
-     */
-    public void stepBack() {
-        if (_discardPile.empty()) {
-            while (!_deck.empty()) {
-                _deck.peek().set_isVisible(true);
-                _discardPile.push(_deck.pop());
-            }
-        } else {
-            Card card = _discardPile.pop();
-            card.set_isVisible(false);
-            _deck.push(card);
-        }
+        return _discardPile.pop();
     }
 
     /**

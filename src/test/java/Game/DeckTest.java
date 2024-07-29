@@ -54,26 +54,4 @@ class DeckTest {
         assertEquals(0, deck.get_discardPile().size());
     }
 
-    @Test
-    void stepBack_ShouldMoveAllCardsToDiscardPile_WhenDiscardPileIsEmpty() {
-        for (int i = 0; i < 52; i++) {
-            deck.placeCardOnDiscardPile(deck.drawCardFromDeck());
-        }
-        deck.reDealCards();
-        deck.stepBack();
-        for (int i = 0; i < 52; i++) {
-            assertTrue(deck.get_discardPile().get(i).isVisible());
-        }
-        assertEquals(0, deck.get_deck().size());
-        assertEquals(52, deck.get_discardPile().size());
-    }
-
-    @Test
-    void stepBack_ShouldPutTopDiscardPileCardBackToDeck_WhenDiscardPileIsNotEmpty() {
-        deck.placeCardOnDiscardPile(deck.drawCardFromDeck());
-        deck.stepBack();
-        assertEquals(52, deck.get_deck().size());
-        assertEquals(0, deck.get_discardPile().size());
-    }
-
 }
