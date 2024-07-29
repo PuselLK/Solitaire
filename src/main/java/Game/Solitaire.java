@@ -281,7 +281,7 @@ public class Solitaire {
                 return foundation;
             }
         }
-        return null;
+        throw new RuntimeException("Card not found in any CardHolder/ does not have an origin.");
     }
 
     /**
