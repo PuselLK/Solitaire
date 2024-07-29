@@ -5,4 +5,11 @@ package Game;
  * Used as a custom type instead of using Object
  */
 public interface CardHolder {
+    void placeCard(Card card);
+
+    Card pickUpCard();
+
+    boolean isEmpty();
+
+    Card peek();
 }

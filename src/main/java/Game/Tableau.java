@@ -26,6 +26,7 @@ public class Tableau implements CardHolder {
      *
      * @param card The card to be placed
      */
+    @Override
     public void placeCard(Card card) {
         _tableau.push(card);
     }
@@ -37,6 +38,7 @@ public class Tableau implements CardHolder {
      * @return The card that was removed
      * @throws RuntimeException if the tableau is empty
      */
+    @Override
     public Card pickUpCard() {
         if (_tableau.isEmpty()) {
             throw new RuntimeException("Tried to pick up a card from an empty tableau.");
@@ -59,7 +61,8 @@ public class Tableau implements CardHolder {
         }
     }
 
-    public Card peekTableau() {
+    @Override
+    public Card peek() {
         if (_tableau.isEmpty()) {
             return null;
         }
@@ -71,6 +74,7 @@ public class Tableau implements CardHolder {
      *
      * @return True if the tableau is empty, false otherwise
      */
+    @Override
     public boolean isEmpty() {
         return _tableau.isEmpty();
     }

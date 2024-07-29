@@ -23,15 +23,15 @@ class GameMoveManagerTest {
         List<Card> deckCards = new ArrayList<>();
         for (int i = 0; i < solitaire.get_deck().get_deck().size(); i++) {
             solitaire.placeCardOnDiscardPile(solitaire.drawCardFromDeck());
-            deckCards.add(solitaire.get_deck().get_discardPile().peek());
+            deckCards.add(solitaire.get_discardPile().get_discardPile().peek());
         }
         solitaire.reDealCards();
         solitaire.stepBack();
         for (int i = 0; i < deckCards.size(); i++) {
-            assertTrue(solitaire.get_deck().get_discardPile().get(i).isVisible());
+            assertTrue(solitaire.get_discardPile().get_discardPile().get(i).isVisible());
         }
         assertEquals(0, solitaire.get_deck().get_deck().size());
-        assertEquals(24, solitaire.get_deck().get_discardPile().size());
+        assertEquals(24, solitaire.get_discardPile().get_discardPile().size());
     }
 
     @Test
@@ -40,6 +40,6 @@ class GameMoveManagerTest {
         solitaire.placeCardOnDiscardPile(card);
         solitaire.stepBack();
         assertEquals(card, solitaire.get_deck().get_deck().peek());
-        assertTrue(solitaire.get_deck().isDiscardPileEmpty());
+        assertTrue(solitaire.get_discardPile().isEmpty());
     }
 }

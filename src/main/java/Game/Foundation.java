@@ -21,6 +21,7 @@ public class Foundation implements CardHolder {
      *
      * @param card The card to be placed
      */
+    @Override
     public void placeCard(Card card) {
         _foundation.push(card);
     }
@@ -31,11 +32,12 @@ public class Foundation implements CardHolder {
      *
      * @throws RuntimeException if the foundation is empty
      */
-    public void pickUpCard() {
+    @Override
+    public Card pickUpCard() {
         if (_foundation.isEmpty()) {
             throw new RuntimeException("Tried to pick up a card from an empty foundation.");
         }
-        _foundation.pop();
+        return _foundation.pop();
     }
 
     /**
@@ -65,7 +67,8 @@ public class Foundation implements CardHolder {
      *
      * @return The top card of the foundation, or null if the foundation is empty
      */
-    public Card peekFoundation() {
+    @Override
+    public Card peek() {
         if (_foundation.isEmpty()) {
             return null;
         }
@@ -77,6 +80,7 @@ public class Foundation implements CardHolder {
      *
      * @return True if the foundation is empty, false otherwise
      */
+    @Override
     public boolean isEmpty() {
         return _foundation.isEmpty();
     }

@@ -12,7 +12,6 @@ import java.util.Stack;
  */
 public class Deck implements CardHolder {
     private final Stack<Card> _deck;
-    private final Stack<Card> _discardPile;
 
     /**
      * Constructor for the Deck class
@@ -27,8 +26,6 @@ public class Deck implements CardHolder {
             }
         }
         Collections.shuffle(_deck);
-
-        _discardPile = new Stack<>();
     }
 
     /**
@@ -36,7 +33,8 @@ public class Deck implements CardHolder {
      *
      * @return The card drawn from the deck if the deck is not empty, null otherwise
      */
-    public Card drawCardFromDeck() {
+    @Override
+    public Card pickUpCard() {
         if (!_deck.empty()) {
             return _deck.pop();
         }
@@ -44,49 +42,14 @@ public class Deck implements CardHolder {
     }
 
     /**
-     * Puts all the cards from the discardPile back into the deck
-     * and sets their visibility to false
-     */
-    public void reDealCards() {
-        while (!_discardPile.empty()) {
-            _discardPile.peek().set_isVisible(false);
-            _deck.push(_discardPile.pop());
-        }
-    }
-
-    /**
-     * Places the given card on the discardPile and makes it visible
-     *
-     * @param card The card to be placed
-     */
-    public void placeCardOnDiscardPile(Card card) {
-        card.set_isVisible(true);
-        _discardPile.push(card);
-    }
-
-    /**
      * Places the given card on the deck and sets its visibility to false
      *
      * @param card The card to be placed
      */
-    public void placeCardOnDeck(Card card) {
+    @Override
+    public void placeCard(Card card) {
         card.set_isVisible(false);
         _deck.push(card);
-    }
-
-    /**
-     * Pops a Card from the discardPile.
-     * throws an Exception if the discardPile is empty which should not happen
-     * because it can only be accessed via GUI when there is a ClickableLabel
-     * and therefore a Card
-     *
-     * @return The card drawn from the discardPile
-     */
-    public Card removeCardFromDiscardPile() {
-        if (_discardPile.empty()) {
-            throw new RuntimeException("Discard pile is empty");
-        }
-        return _discardPile.pop();
     }
 
     /**
@@ -94,7 +57,8 @@ public class Deck implements CardHolder {
      *
      * @return The card on top of the deck
      */
-    public Card peekDeck() {
+    @Override
+    public Card peek() {
         if (_deck.empty()) {
             return null;
         }
@@ -102,33 +66,13 @@ public class Deck implements CardHolder {
     }
 
     /**
-     * Returns the card on top of the discardPile without removing it
-     *
-     * @return The card on top of the discardPile
-     */
-    public Card peekDiscardPile() {
-        if (_discardPile.empty()) {
-            return null;
-        }
-        return _discardPile.peek();
-    }
-
-    /**
      * Checks if the deck is empty
      *
      * @return True if the deck is empty, false otherwise
      */
-    public boolean isDeckEmpty() {
+    @Override
+    public boolean isEmpty() {
         return _deck.empty();
-    }
-
-    /**
-     * Checks if the discardPile is empty
-     *
-     * @return True if the discardPile is empty, false otherwise
-     */
-    public boolean isDiscardPileEmpty() {
-        return _discardPile.empty();
     }
 
     /**
@@ -139,15 +83,5 @@ public class Deck implements CardHolder {
      */
     public Stack<Card> get_deck() {
         return _deck;
-    }
-
-    /**
-     * Returns the number of cards in the discardPile
-     * Used for testing purposes
-     *
-     * @return The number of cards in the discardPile
-     */
-    public Stack<Card> get_discardPile() {
-        return _discardPile;
     }
 }

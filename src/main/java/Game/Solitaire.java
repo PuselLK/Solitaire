@@ -11,6 +11,7 @@ import static GUI.CardPanel.TABLEAU;
  */
 public class Solitaire {
     private Deck _deck;
+    private DiscardPile _discardPile;
     private Foundation[] _foundationsArray;
     private Tableau[] _tableausArray;
     private final GameMoveManager _gameMoveManager;
@@ -42,6 +43,7 @@ public class Solitaire {
      */
     private void initializeGame() {
         _deck = new Deck();
+        _discardPile = new DiscardPile();
 
         _foundationsArray = new Foundation[4];
         for (int i = 0; i < _foundationsArray.length; i++) {
@@ -52,10 +54,10 @@ public class Solitaire {
         for (int i = 0; i < _tableausArray.length; i++) {
             Stack<Card> tableau = new Stack<>();
             for (int j = 0; j <= i; j++) {
-                tableau.push(_deck.drawCardFromDeck());
+                tableau.push(_deck.pickUpCard());
             }
             _tableausArray[i] = new Tableau(tableau);
-            _tableausArray[i].peekTableau().set_isVisible(true);
+            _tableausArray[i].peek().set_isVisible(true);
         }
     }
 
@@ -132,13 +134,9 @@ public class Solitaire {
      * @param origin The card to be removed
      */
     private void removeCardIfTop(CardHolder origin, GameMove gameMove) {
-        if (origin instanceof Deck) {
-            _deck.removeCardFromDiscardPile();
-        } else if (origin instanceof Foundation foundation) {
-            foundation.pickUpCard();
-        } else if (origin instanceof Tableau tableau) {
-            tableau.pickUpCard();
-            Card topCard = tableau.peekTableau();
+        origin.pickUpCard();
+        if (origin instanceof Tableau) {
+            Card topCard = origin.peek();
             if (topCard != null) {
                 if (topCard.isVisible()) {
                     gameMove.setTableauCardWasVisible(true);
@@ -169,7 +167,7 @@ public class Solitaire {
             }
         }
         // set the next card visible
-        Card topCard = tableau.peekTableau();
+        Card topCard = tableau.peek();
         if (topCard != null) {
             if (topCard.isVisible()) {
                 gameMove.setTableauCardWasVisible(true);
@@ -182,12 +180,12 @@ public class Solitaire {
 
         // place all cards on top of the clicked card to the tableau excluding the clicked card
         CardHolder newOrigin = findCardOrigin(card);
-        if (!(newOrigin instanceof Tableau newTableau)) {
+        if (!(newOrigin instanceof Tableau)) {
             throw new RuntimeException("Card has been moved to a Foundation or Deck/discardPile even though " +
                     "it was not the top card or the Card was not found.");
         }
         while (!cardsOnTop.isEmpty()) {
-            newTableau.placeCard(cardsOnTop.pop());
+            newOrigin.placeCard(cardsOnTop.pop());
         }
     }
 
@@ -229,15 +227,7 @@ public class Solitaire {
      * @return True if the card is the top card of the origin, false otherwise
      */
     private boolean isCardTopCard(Card card, CardHolder origin) {
-        if (origin instanceof Deck) {
-            return _deck.peekDiscardPile().equals(card);
-        } else if (origin instanceof Tableau tableau) {
-            return tableau.peekTableau().equals(card);
-        } else if (origin instanceof Foundation foundation) {
-            return foundation.peekFoundation().equals(card);
-        }
-        return false;
-
+        return origin.peek().equals(card);
     }
 
     /**
@@ -272,8 +262,8 @@ public class Solitaire {
      * @return The origin of the card
      */
     private CardHolder findCardOrigin(Card card) {
-        if (_deck.peekDiscardPile() != null && _deck.peekDiscardPile().equals(card)) {
-            return _deck;
+        if (_discardPile.peek() != null && _discardPile.peek().equals(card)) {
+            return _discardPile;
         }
 
         // Tableau
@@ -287,7 +277,7 @@ public class Solitaire {
 
         // Foundation
         for (Foundation foundation : _foundationsArray) {
-            if (foundation.peekFoundation() != null && foundation.peekFoundation().equals(card)) {
+            if (foundation.peek() != null && foundation.peek().equals(card)) {
                 return foundation;
             }
         }
@@ -301,26 +291,29 @@ public class Solitaire {
      * @return The card drawn from the deck
      */
     public Card drawCardFromDeck() {
-        _gameMoveManager.addGameMove(new GameMove(_deck, _deck));
+        _gameMoveManager.addGameMove(new GameMove(_deck, _discardPile));
 
-        return _deck.drawCardFromDeck();
+        return _deck.pickUpCard();
     }
 
     /**
      * Calls the placeCardOnDiscardPile method in the Deck class
      *
-     * @see Deck#placeCardOnDiscardPile(Card)
+     * @see DiscardPile#placeCard(Card)
      */
     public void placeCardOnDiscardPile(Card card) {
-        _deck.placeCardOnDiscardPile(card);
+        _discardPile.placeCard(card);
     }
 
     /**
      * Puts all the cards from the discardPile back into the deck and sets their visibility to false
      */
     public void reDealCards() {
-        _gameMoveManager.addGameMove(new GameMove(_deck, _deck));
-        _deck.reDealCards();
+        _gameMoveManager.addGameMove(new GameMove(_discardPile, _deck));
+        while (!_discardPile.isEmpty()) {
+            _discardPile.peek().set_isVisible(false);
+            _deck.placeCard(_discardPile.pickUpCard());
+        }
     }
 
     /**
@@ -331,7 +324,7 @@ public class Solitaire {
      */
     public boolean isGameFinished() {
         for (Foundation foundation : _foundationsArray) {
-            if (foundation.isEmpty() || foundation.peekFoundation().getValue() != 13) {
+            if (foundation.isEmpty() || foundation.peek().getValue() != 13) {
                 return false;
             }
         }
@@ -374,6 +367,15 @@ public class Solitaire {
      */
     public Deck get_deck() {
         return _deck;
+    }
+
+    /**
+     * Getter method for the discardPile
+     *
+     * @return The discardPile
+     */
+    public DiscardPile get_discardPile() {
+        return _discardPile;
     }
 
     /**

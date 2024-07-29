@@ -29,29 +29,15 @@ class DeckTest {
 
     @Test
     void drawCardFromDeck_shouldReturnCardIfDeckIsNotEmpty() {
-        assertNotNull(deck.drawCardFromDeck());
+        assertNotNull(deck.pickUpCard());
     }
 
     @Test
     void drawCardFromDeck_shouldReturnNullIfDeckIsEmpty() {
         //Remove all cards from the deck
         for (int i = 0; i < 52; i++) {
-            deck.drawCardFromDeck();
+            deck.pickUpCard();
         }
-        assertNull(deck.drawCardFromDeck());
+        assertNull(deck.pickUpCard());
     }
-
-    @Test
-    void reDealCards_shouldMoveAllCardsFromDiscardPileToDeck() {
-        //Remove all cards from the deck and add them to the discardPile
-        for (int i = 0; i < 52; i++) {
-            deck.placeCardOnDiscardPile(deck.drawCardFromDeck());
-        }
-        assertEquals(0, deck.get_deck().size());
-        assertEquals(52, deck.get_discardPile().size());
-        deck.reDealCards();
-        assertEquals(52, deck.get_deck().size());
-        assertEquals(0, deck.get_discardPile().size());
-    }
-
 }

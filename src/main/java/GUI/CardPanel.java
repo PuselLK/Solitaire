@@ -55,7 +55,7 @@ public class CardPanel {
             Foundation foundation = _solitaire.get_foundationsArray()[i];
             JPanel panel = (JPanel) _foundationPanels.getComponent(i);
             if (!foundation.isEmpty()) {
-                JLabel foundationLabel = createCardLabelClickable(foundation.peekFoundation(), FOUNDATION, panel);
+                JLabel foundationLabel = createCardLabelClickable(foundation.peek(), FOUNDATION, panel);
                 panel.add(foundationLabel);
             }
         }
@@ -66,17 +66,18 @@ public class CardPanel {
      */
     public void renderDeckAndDiscardPile() {
         Deck deck = _solitaire.get_deck();
+        DiscardPile discardPile = _solitaire.get_discardPile();
 
-        if (deck.isDeckEmpty()) {
+        if (deck.isEmpty()) {
             JLabel redrawLabel = createRedrawLabel();
             _deckPanel.add(redrawLabel);
         } else {
-            JLabel deckCardLabel = createCardLabelClickable(deck.peekDeck(), DECK, _deckPanel);
+            JLabel deckCardLabel = createCardLabelClickable(deck.peek(), DECK, _deckPanel);
             _deckPanel.add(deckCardLabel);
         }
 
-        if (!deck.isDiscardPileEmpty()) {
-            JLabel discardCardLabel = createCardLabelClickable(deck.peekDiscardPile(), DISCARD_PILE, _discardPilePanel);
+        if (!discardPile.isEmpty()) {
+            JLabel discardCardLabel = createCardLabelClickable(discardPile.peek(), DISCARD_PILE, _discardPilePanel);
             _discardPilePanel.add(discardCardLabel);
         }
     }
