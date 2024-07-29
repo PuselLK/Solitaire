@@ -2,6 +2,9 @@ package Game;
 
 import java.util.Stack;
 
+import static GUI.CardPanel.FOUNDATION;
+import static GUI.CardPanel.TABLEAU;
+
 /**
  * Represents the game of Solitaire.
  * Contains the Deck, the Foundations and the Tableaus.
@@ -103,16 +106,16 @@ public class Solitaire {
         boolean isTopCard = isCardTopCard(card, origin);
         GameMove gameMove = new GameMove(origin, null);
 
-        if ((isTopCard && targetType.equals("Foundation") && placeCardOnFoundation(card, targetIndex, true)) ||
-                (isTopCard && targetType.equals("Tableau") && placeCardOnTableau(card, targetIndex))) {
+        if ((isTopCard && targetType.equals(FOUNDATION) && placeCardOnFoundation(card, targetIndex, true)) ||
+                (isTopCard && targetType.equals(TABLEAU) && placeCardOnTableau(card, targetIndex))) {
             removeCardIfTop(origin, gameMove);
 
             gameMove.set_destination(findCardOrigin(card));
             gameMove.addCard(card);
             _gameMoveManager.addGameMove(gameMove);
             return true;
-        } else if ((!isTopCard && targetType.equals("Foundation") && placeCardOnFoundation(card, targetIndex, false)) ||
-                (!isTopCard && targetType.equals("Tableau") && placeCardOnTableau(card, targetIndex))) {
+        } else if ((!isTopCard && targetType.equals(FOUNDATION) && placeCardOnFoundation(card, targetIndex, false)) ||
+                (!isTopCard && targetType.equals(TABLEAU) && placeCardOnTableau(card, targetIndex))) {
             removeCardIfNotTop(origin, card, gameMove);
 
             addAttachedCardsToGameMove(card, gameMove);
@@ -228,10 +231,10 @@ public class Solitaire {
     private boolean isCardTopCard(Card card, CardHolder origin) {
         if (origin instanceof Deck) {
             return _deck.peekDiscardPile().equals(card);
-        } else if (origin instanceof Tableau) {
-            return ((Tableau) origin).peekTableau().equals(card);
-        } else if (origin instanceof Foundation) {
-            return ((Foundation) origin).peekFoundation().equals(card);
+        } else if (origin instanceof Tableau tableau) {
+            return tableau.peekTableau().equals(card);
+        } else if (origin instanceof Foundation foundation) {
+            return foundation.peekFoundation().equals(card);
         }
         return false;
 
@@ -293,6 +296,7 @@ public class Solitaire {
 
     /**
      * The card drawn from the deck if the deck is not empty, null otherwise
+     * Also creates a new GameMove object and adds it to the GameMoveManager
      *
      * @return The card drawn from the deck
      */
@@ -303,7 +307,9 @@ public class Solitaire {
     }
 
     /**
-     * Places the given card on the discardPile and makes it visible
+     * Calls the placeCardOnDiscardPile method in the Deck class
+     *
+     * @see Deck#placeCardOnDiscardPile(Card)
      */
     public void placeCardOnDiscardPile(Card card) {
         _deck.placeCardOnDiscardPile(card);
@@ -350,6 +356,11 @@ public class Solitaire {
         }
     }
 
+    /**
+     * Calls the StepBack method in the GameMoveManager
+     *
+     * @see GameMoveManager#stepBack()
+     */
     public void stepBack() {
         _gameMoveManager.stepBack();
     }

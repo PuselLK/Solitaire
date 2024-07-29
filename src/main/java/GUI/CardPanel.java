@@ -23,10 +23,10 @@ public class CardPanel {
     private JLabel _draggedLabel = null;
     private Point _initialClick;
 
-    private static final String FOUNDATION = "Foundation";
-    private static final String DISCARD_PILE = "Discard Pile";
-    private static final String DECK = "Deck";
-    private static final String TABLEAU = "Tableau";
+    public static final String FOUNDATION = "Foundation";
+    public static final String DISCARD_PILE = "Discard Pile";
+    public static final String DECK = "Deck";
+    public static final String TABLEAU = "Tableau";
 
     /**
      * Creates a new card panel with the given solitaire game and panels

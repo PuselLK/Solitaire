@@ -7,6 +7,8 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
+import static GUI.CardPanel.*;
+
 public class GamePanel {
 
     private static Solitaire _solitaire;
@@ -15,11 +17,6 @@ public class GamePanel {
     private static JPanel _foundationPanels;
     private static JPanel _deckPanel;
     private static JPanel _discardPilePanel;
-
-    private static final String FOUNDATION = "Foundation";
-    private static final String DISCARD_PILE = "Discard Pile";
-    private static final String DECK = "Deck";
-    private static final String TABLEAU = "Tableau";
 
     /**
      * Creates a new game panel with the given solitaire game and screen dimensions
