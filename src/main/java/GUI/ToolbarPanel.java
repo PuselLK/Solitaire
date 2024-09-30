@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ToolbarPanel {
+public class ToolbarPanel implements ScoreListener {
     private final Solitaire _solitaire;
     private static JLabel _timeLabel = null;
     private final JButton _stepBackButton;
@@ -14,6 +14,7 @@ public class ToolbarPanel {
     private final JToolBar _toolBar;
     private static Timer _timer = null;
     private static TimerListener _timerListener;
+    private final JLabel _score;
 
     /**
      * Creates a new toolbar panel with a time label
@@ -34,9 +35,13 @@ public class ToolbarPanel {
         _stepBackButton = new JButton("Step Back");
         _restartButton = new JButton("Restart");
         addMouseListener();
+        _score = new JLabel("Score: 0", SwingConstants.CENTER);
+        _solitaire.getScoreManager().addListener(this);
+
         _toolBar.add(_timeLabel);
         _toolBar.add(_stepBackButton);
         _toolBar.add(_restartButton);
+        _toolBar.add(_score);
     }
 
     private void addMouseListener() {
@@ -69,5 +74,10 @@ public class ToolbarPanel {
 
     public JLabel getTimeLabel() {
         return _timeLabel;
+    }
+
+    @Override
+    public void onScoreChange(int score) {
+        _score.setText("Score: " + score);
     }
 }

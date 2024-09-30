@@ -15,12 +15,14 @@ public class Solitaire {
     private Foundation[] _foundationsArray;
     private Tableau[] _tableausArray;
     private final GameMoveManager _gameMoveManager;
+    private final ScoreManager _scoreManager;
 
     /**
      * Constructor for the Solitaire class.
      */
     public Solitaire() {
         _gameMoveManager = new GameMoveManager();
+        _scoreManager = ScoreManager.getInstance();
         initializeGame();
     }
 
@@ -29,6 +31,7 @@ public class Solitaire {
      */
     public void restart() {
         _gameMoveManager.clearGameMoves();
+        _scoreManager.resetScore();
         initializeGame();
     }
 
@@ -130,6 +133,8 @@ public class Solitaire {
     /**
      * Removes the top most card from the given origin.
      * If the origin is a tableau the next card is set visible.
+     * Increases Score by 5, if the card was not visible before.
+     * Increases Score by 5, if the origin is a discardPile
      *
      * @param origin The card to be removed
      */
@@ -140,14 +145,23 @@ public class Solitaire {
             if (topCard != null) {
                 if (topCard.isVisible()) {
                     gameMove.setTableauCardWasVisible(true);
+                } else {
+                    _scoreManager.increaseScore(5);
                 }
                 topCard.set_isVisible(true);
             }
+        }
+        if (origin instanceof DiscardPile) {
+            _scoreManager.increaseScore(5);
+        }
+        if (origin instanceof Foundation) {
+            _scoreManager.decreaseScore(5);
         }
     }
 
     /**
      * Removes the given card and every card on top of it from the given origin.
+     * Increases Score by 5, if the card was not visible before.
      *
      * @param origin The card to be removed
      * @param card   The card to be removed
@@ -171,6 +185,8 @@ public class Solitaire {
         if (topCard != null) {
             if (topCard.isVisible()) {
                 gameMove.setTableauCardWasVisible(true);
+            } else {
+                _scoreManager.increaseScore(5);
             }
             topCard.set_isVisible(true);
         }
@@ -191,6 +207,7 @@ public class Solitaire {
 
     /**
      * Places a card on a foundation.
+     * Increases Score by 10, if card is placed on a Foundation
      *
      * @param card The card to be placed
      * @param i    The index of the foundation
@@ -199,6 +216,7 @@ public class Solitaire {
     private boolean placeCardOnFoundation(Card card, int i, boolean isTopCard) {
         if (_foundationsArray[i].isValidMove(card, isTopCard)) {
             _foundationsArray[i].placeCard(card);
+            _scoreManager.increaseScore(10);
             return true;
         }
         return false;
@@ -233,6 +251,7 @@ public class Solitaire {
     /**
      * Tries to place a card on a foundation and if not successful, tries to place it on a tableau
      * Does not remove the card from the origin
+     * Increases Score by 10, if card is placed on a Foundation
      *
      * @param card      The card to be placed
      * @param isTopCard True if the card is the top card of the origin, false otherwise
@@ -242,6 +261,7 @@ public class Solitaire {
         for (Foundation foundation : _foundationsArray) {
             if (foundation.isValidMove(card, isTopCard)) {
                 foundation.placeCard(card);
+                _scoreManager.increaseScore(10);
                 return true;
             }
         }
@@ -307,6 +327,7 @@ public class Solitaire {
 
     /**
      * Puts all the cards from the discardPile back into the deck and sets their visibility to false
+     * Decreases Score by 100
      */
     public void reDealCards() {
         _gameMoveManager.addGameMove(new GameMove(_discardPile, _deck));
@@ -314,11 +335,13 @@ public class Solitaire {
             _discardPile.peek().set_isVisible(false);
             _deck.placeCard(_discardPile.pickUpCard());
         }
+        _scoreManager.decreaseScore(100);
     }
 
     /**
      * Checks if the game is finished.
      * The game is finished if all foundations are filled with a King.
+     * Increases Score by 100 if the Game is Won
      *
      * @return True if the game is finished, false otherwise
      */
@@ -328,6 +351,7 @@ public class Solitaire {
                 return false;
             }
         }
+        _scoreManager.increaseScore(100);
         return true;
     }
 
@@ -351,11 +375,13 @@ public class Solitaire {
 
     /**
      * Calls the StepBack method in the GameMoveManager
+     * Decreases Score by 10
      *
      * @see GameMoveManager#stepBack()
      */
     public void stepBack() {
         _gameMoveManager.stepBack();
+        _scoreManager.decreaseScore(10);
     }
 
     //Getter methods----------------------------------------------
@@ -394,5 +420,9 @@ public class Solitaire {
      */
     public Tableau[] get_tableausArray() {
         return _tableausArray;
+    }
+
+    public ScoreManager getScoreManager() {
+        return _scoreManager;
     }
 }

@@ -1,5 +1,7 @@
 package GUI;
 
+import Game.ScoreManager;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,11 +18,19 @@ public class TimerListener implements ActionListener {
         _timeLabel = timeLabel;
     }
 
+    /**
+     * Updates the time label every second
+     *
+     * @param e The action event
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = currentTime - _startTime;
         updateDisplay(elapsedTime);
+        if (elapsedTime % 60000 == 0) {
+            ScoreManager.getInstance().decreaseScore(20);
+        }
     }
 
     /**
