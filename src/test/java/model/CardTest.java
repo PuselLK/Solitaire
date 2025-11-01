@@ -13,24 +13,24 @@ class CardTest {
 
     @BeforeEach
     void setUp() {
-        cardHeart = new Card(Card.Suit.heart, 1);
-        cardSpade = new Card(Card.Suit.spade, 2);
-        cardClub = new Card(Card.Suit.club, 3);
-        cardDiamond = new Card(Card.Suit.diamond, 4);
+        cardHeart = new Card(Card.Suit.HEART, 1);
+        cardSpade = new Card(Card.Suit.SPADE, 2);
+        cardClub = new Card(Card.Suit.CLUB, 3);
+        cardDiamond = new Card(Card.Suit.DIAMOND, 4);
     }
 
     @Test
     void CardConstructor_ShouldSetImagePathCorrectly_WhenRankIsBetween_0_And_14() {
-        Card cardRankOne = new Card(Card.Suit.heart, 1);
-        Card cardRank13 = new Card(Card.Suit.heart, 13);
+        Card cardRankOne = new Card(Card.Suit.HEART, 1);
+        Card cardRank13 = new Card(Card.Suit.HEART, 13);
         assertEquals("src/main/resources/heart/1_heart.png", cardRankOne.get_imagePath());
         assertEquals("src/main/resources/heart/13_heart.png", cardRank13.get_imagePath());
     }
 
     @Test
     void CardConstructor_ShouldSetImagePathToCardBack_WhenRankIsNotBetween_0_And_14() {
-        Card cardRank0 = new Card(Card.Suit.heart, 0);
-        Card cardRank14 = new Card(Card.Suit.heart, 14);
+        Card cardRank0 = new Card(Card.Suit.HEART, 0);
+        Card cardRank14 = new Card(Card.Suit.HEART, 14);
         assertEquals("src/main/resources/card back/card_back.png", cardRank0.get_imagePath());
         assertEquals("src/main/resources/card back/card_back.png", cardRank14.get_imagePath());
     }
@@ -77,17 +77,17 @@ class CardTest {
 
     @Test
     void equalsOtherCard_ShouldReturnTrue_WhenCardsHaveSameSuitAndRank() {
-        Card card1 = new Card(Card.Suit.heart, 1);
-        Card card2 = new Card(Card.Suit.heart, 1);
+        Card card1 = new Card(Card.Suit.HEART, 1);
+        Card card2 = new Card(Card.Suit.HEART, 1);
         assertEquals(card1, card2);
     }
 
     @Test
     void equals_ShouldReturnFalse_WhenCardsHaveDifferentSuit() {
-        Card card1 = new Card(Card.Suit.heart, 1);
-        Card card2 = new Card(Card.Suit.spade, 1);
-        Card card3 = new Card(Card.Suit.spade, 2);
-        Card card4 = new Card(Card.Suit.club, 3);
+        Card card1 = new Card(Card.Suit.HEART, 1);
+        Card card2 = new Card(Card.Suit.SPADE, 1);
+        Card card3 = new Card(Card.Suit.SPADE, 2);
+        Card card4 = new Card(Card.Suit.CLUB, 3);
         assertNotEquals(card1, card2); //Same rank, different suit
         assertNotEquals(card2, card3); //Same suit, different rank
         assertNotEquals(card3, card4); //Different rank, different suit
@@ -95,8 +95,8 @@ class CardTest {
 
     @Test
     void hashCode_ShouldReturnSameHashCode_WhenCardsHaveSameSuitAndRank() {
-        Card card1 = new Card(Card.Suit.heart, 1);
-        Card card2 = new Card(Card.Suit.heart, 1);
+        Card card1 = new Card(Card.Suit.HEART, 1);
+        Card card2 = new Card(Card.Suit.HEART, 1);
         assertEquals(card1.hashCode(), card2.hashCode());
     }
 }

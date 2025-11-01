@@ -11,7 +11,7 @@ public class Card {
      * Enum for card suits.
      */
     enum Suit {
-        club, spade, heart, diamond
+        CLUB, SPADE, HEART, DIAMOND
     }
 
     private final Suit _suit; // The suit of the card.
@@ -53,7 +53,7 @@ public class Card {
      * @return true if the suit is heart or diamond, false otherwise.
      */
     public boolean isRed() {
-        return getSuit() == Suit.heart || getSuit() == Suit.diamond;
+        return getSuit() == Suit.HEART || getSuit() == Suit.DIAMOND;
     }
 
     /**
@@ -62,7 +62,7 @@ public class Card {
      * @return true if the suit is spade or club, false otherwise.
      */
     public boolean isBlack() {
-        return getSuit() == Suit.spade || getSuit() == Suit.club;
+        return getSuit() == Suit.SPADE || getSuit() == Suit.CLUB;
     }
 
     /**
