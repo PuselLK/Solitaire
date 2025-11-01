@@ -10,7 +10,7 @@ public class Card {
     /**
      * Enum for card suits.
      */
-    enum Suit {
+    public enum Suit {
         CLUB, SPADE, HEART, DIAMOND
     }
 
