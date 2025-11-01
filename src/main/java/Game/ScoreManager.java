@@ -1,6 +1,6 @@
 package Game;
 
-import GUI.ScoreListener;
+import GUI.IScoreListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ public final class ScoreManager {
 
     private static ScoreManager _INSTANCE;
     private int _score;
-    private final List<ScoreListener> listeners = new ArrayList<>();
+    private final List<IScoreListener> listeners = new ArrayList<>();
 
     private ScoreManager() {
         _score = 0;
@@ -51,16 +51,16 @@ public final class ScoreManager {
         System.out.println("Score reset");
     }
 
-    public void addListener(ScoreListener listener) {
+    public void addListener(IScoreListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(ScoreListener listener) {
+    public void removeListener(IScoreListener listener) {
         listeners.remove(listener);
     }
 
     public void notifyListners() {
-        for (ScoreListener listener : listeners) {
+        for (IScoreListener listener : listeners) {
             listener.onScoreChange(_score);
         }
     }

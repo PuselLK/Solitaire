@@ -10,7 +10,7 @@ import java.util.Stack;
  * The discardPile is a stack of cards that is empty at the beginning of the game
  * The discardPile is used to store the cards that are drawn from the deck and can be played
  */
-public class Deck implements CardHolder {
+public class Deck implements ICardHolder {
     private final Stack<Card> _deck;
 
     /**

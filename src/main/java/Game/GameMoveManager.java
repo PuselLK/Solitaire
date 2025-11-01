@@ -43,8 +43,8 @@ public class GameMoveManager {
 
         GameMove gameMove = _gameMoves.pop();
         List<Card> movedCards = gameMove.getMovedCards();
-        CardHolder origin = gameMove.getOrigin();
-        CardHolder destination = gameMove.getDestination();
+        ICardHolder origin = gameMove.getOrigin();
+        ICardHolder destination = gameMove.getDestination();
 
         if (origin instanceof Deck) {
             handleDeckStepBack(origin, destination);
@@ -64,7 +64,7 @@ public class GameMoveManager {
      * @param destination       The destination from where the cards were moved.
      * @param discardPileOrigin The originating deck from which cards were moved.
      */
-    private void handleDiscardPileStepBack(List<Card> movedCards, CardHolder destination, CardHolder discardPileOrigin) {
+    private void handleDiscardPileStepBack(List<Card> movedCards, ICardHolder destination, ICardHolder discardPileOrigin) {
         if (!(destination instanceof Deck)) {
             destination.pickUpCard();
             discardPileOrigin.placeCard(movedCards.get(0));
@@ -80,7 +80,7 @@ public class GameMoveManager {
      * If the discardPile is empty, all cards from the deck are moved to the discardPile
      * If the discardPile is not empty, the top card is moved back to the deck
      */
-    public void handleDeckStepBack(CardHolder origin, CardHolder destination) {
+    public void handleDeckStepBack(ICardHolder origin, ICardHolder destination) {
         Card card = destination.pickUpCard();
         card.set_isVisible(false);
         origin.placeCard(card);
@@ -94,7 +94,7 @@ public class GameMoveManager {
      * @param tableauOrigin The originating tableau from which cards were moved.
      * @param destination   The destination where the cards were moved.
      */
-    private void handleTableauStepBack(GameMove gameMove, List<Card> movedCards, CardHolder tableauOrigin, CardHolder destination) {
+    private void handleTableauStepBack(GameMove gameMove, List<Card> movedCards, ICardHolder tableauOrigin, ICardHolder destination) {
         if (destination instanceof Tableau) {
             moveCardsBetweenTableaus(gameMove, movedCards, tableauOrigin, destination);
         } else if (destination instanceof Foundation) {
@@ -111,7 +111,7 @@ public class GameMoveManager {
      * @param foundationOrigin The originating foundation from which cards were moved.
      * @param destination      The destination where the cards were moved.
      */
-    private void handleFoundationStepBack(List<Card> movedCards, CardHolder foundationOrigin, CardHolder destination) {
+    private void handleFoundationStepBack(List<Card> movedCards, ICardHolder foundationOrigin, ICardHolder destination) {
         destination.pickUpCard();
         foundationOrigin.placeCard(movedCards.get(0));
     }
@@ -122,7 +122,7 @@ public class GameMoveManager {
      * @param gameMove The game move object containing move details.
      * @param tableau  The tableau whose visibility is being managed.
      */
-    private void handleTableauVisibility(GameMove gameMove, CardHolder tableau) {
+    private void handleTableauVisibility(GameMove gameMove, ICardHolder tableau) {
         if (!tableau.isEmpty() && !gameMove.getTableauCardWasVisible()) {
             tableau.peek().set_isVisible(false);
         }
@@ -136,7 +136,7 @@ public class GameMoveManager {
      * @param origin      The originating tableau from which cards were moved.
      * @param destination The destination tableau to which cards were moved.
      */
-    private void moveCardsBetweenTableaus(GameMove gameMove, List<Card> movedCards, CardHolder origin, CardHolder destination) {
+    private void moveCardsBetweenTableaus(GameMove gameMove, List<Card> movedCards, ICardHolder origin, ICardHolder destination) {
         for (Card ignored : movedCards) {
             destination.pickUpCard();
         }

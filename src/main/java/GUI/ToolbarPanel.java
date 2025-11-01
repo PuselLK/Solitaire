@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ToolbarPanel implements ScoreListener {
+public class ToolbarPanel implements IScoreListener {
     private final Solitaire _solitaire;
     private static JLabel _timeLabel = null;
     private final JButton _stepBackButton;

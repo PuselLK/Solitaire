@@ -2,7 +2,7 @@ package Game;
 
 import java.util.Stack;
 
-public class DiscardPile implements CardHolder {
+public class DiscardPile implements ICardHolder {
     private final Stack<Card> _discardPile;
 
     public DiscardPile() {

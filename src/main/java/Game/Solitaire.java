@@ -74,7 +74,7 @@ public class Solitaire {
      * @return True if the card was placed successfully, false otherwise
      */
     public boolean placeCardOnClick(Card card) {
-        CardHolder origin = findCardOrigin(card);
+        ICardHolder origin = findCardOrigin(card);
         boolean isTopCard = isCardTopCard(card, origin);
         GameMove gameMove = new GameMove(origin, null);
 
@@ -107,7 +107,7 @@ public class Solitaire {
      * @return True if the card was placed successfully, false otherwise
      */
     public boolean placeCardOnDrag(Card card, int targetIndex, String targetType) {
-        CardHolder origin = findCardOrigin(card);
+        ICardHolder origin = findCardOrigin(card);
         boolean isTopCard = isCardTopCard(card, origin);
         GameMove gameMove = new GameMove(origin, null);
 
@@ -138,7 +138,7 @@ public class Solitaire {
      *
      * @param origin The card to be removed
      */
-    private void removeCardIfTop(CardHolder origin, GameMove gameMove) {
+    private void removeCardIfTop(ICardHolder origin, GameMove gameMove) {
         origin.pickUpCard();
         if (origin instanceof Tableau) {
             Card topCard = origin.peek();
@@ -167,7 +167,7 @@ public class Solitaire {
      * @param card   The card to be removed
      * @throws RuntimeException if the origin is a Deck or Foundation
      */
-    private void removeCardIfNotTop(CardHolder origin, Card card, GameMove gameMove) {
+    private void removeCardIfNotTop(ICardHolder origin, Card card, GameMove gameMove) {
         if (!(origin instanceof Tableau tableau)) {
             throw new RuntimeException("Clicked a Card on the Discard Pile or Foundation that is not the top Card");
         }
@@ -195,7 +195,7 @@ public class Solitaire {
         cardsOnTop.pop();
 
         // place all cards on top of the clicked card to the tableau excluding the clicked card
-        CardHolder newOrigin = findCardOrigin(card);
+        ICardHolder newOrigin = findCardOrigin(card);
         if (!(newOrigin instanceof Tableau)) {
             throw new RuntimeException("Card has been moved to a Foundation or Deck/discardPile even though " +
                     "it was not the top card or the Card was not found.");
@@ -244,7 +244,7 @@ public class Solitaire {
      * @param origin The origin of the card
      * @return True if the card is the top card of the origin, false otherwise
      */
-    private boolean isCardTopCard(Card card, CardHolder origin) {
+    private boolean isCardTopCard(Card card, ICardHolder origin) {
         return origin.peek().equals(card);
     }
 
@@ -281,7 +281,7 @@ public class Solitaire {
      * @param card The card to find the origin of
      * @return The origin of the card
      */
-    private CardHolder findCardOrigin(Card card) {
+    private ICardHolder findCardOrigin(Card card) {
         if (_discardPile.peek() != null && _discardPile.peek().equals(card)) {
             return _discardPile;
         }

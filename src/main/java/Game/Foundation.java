@@ -6,7 +6,7 @@ import java.util.Stack;
  * Represents a foundation in a game of solitaire. A foundation is a stack of cards, where each card
  * must be of the same suit and one value higher than the previous card.
  */
-public class Foundation implements CardHolder {
+public class Foundation implements ICardHolder {
     private final Stack<Card> _foundation;
 
     /**

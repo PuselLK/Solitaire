@@ -1,6 +1,6 @@
 package GUI;
 
-public interface ScoreListener {
+public interface IScoreListener {
 
     void onScoreChange(int score);
 }
