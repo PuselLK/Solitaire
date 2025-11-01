@@ -8,6 +8,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 import static view.CardPanel.*;
+import static view.SolitaireView.SCREEN_HEIGHT;
+import static view.SolitaireView.SCREEN_WIDTH;
 
 public class GamePanel {
 
@@ -22,30 +24,28 @@ public class GamePanel {
      * Creates a new game panel with the given solitaire game and screen dimensions
      *
      * @param solitaireController    The solitaire game to be displayed
-     * @param screenWidth  The width of the screen
-     * @param screenHeight The height of the screen
      */
-    public GamePanel(SolitaireController solitaireController, double screenWidth, double screenHeight) {
+    public GamePanel(SolitaireController solitaireController) {
         _solitaireController = solitaireController;
 
         _mainPane = new JLayeredPane();
         _mainPane.setLayout(null);
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 80, 0));
-        topPanel.setBounds(0, 0, (int) screenWidth, (int) (screenHeight * 0.25));
+        topPanel.setBounds(0, 0, SCREEN_WIDTH, (int) (SCREEN_HEIGHT * 0.25));
         topPanel.setBackground(new Color(0, 128, 0));
         _mainPane.add(topPanel, JLayeredPane.DEFAULT_LAYER);
 
-        _foundationPanels = createFoundationPanels(screenWidth, screenHeight);
+        _foundationPanels = createFoundationPanels();
         topPanel.add(_foundationPanels);
 
-        _discardPilePanel = createDeckPanel(DISCARD_PILE, screenWidth, screenHeight);
+        _discardPilePanel = createDeckPanel(DISCARD_PILE);
         topPanel.add(_discardPilePanel, BorderLayout.EAST);
 
-        _deckPanel = createDeckPanel(DECK, screenWidth, screenHeight);
+        _deckPanel = createDeckPanel(DECK);
         topPanel.add(_deckPanel, BorderLayout.EAST);
 
-        _tableauPanels = createTableauPanels(screenWidth, screenHeight);
+        _tableauPanels = createTableauPanels();
         _mainPane.add(_tableauPanels, JLayeredPane.DEFAULT_LAYER);
     }
 
@@ -100,13 +100,11 @@ public class GamePanel {
     /**
      * Creates the foundation panels
      *
-     * @param screenWidth  The width of the screen
-     * @param screenHeight The height of the screen
      * @return The foundation panels
      */
-    private JPanel createFoundationPanels(double screenWidth, double screenHeight) {
+    private JPanel createFoundationPanels() {
         JPanel foundationPanels = new JPanel(new GridLayout(1, 4));
-        foundationPanels.setPreferredSize(new Dimension((int) (screenWidth * 2.0 / 4), (int) (screenHeight * 0.25)));
+        foundationPanels.setPreferredSize(new Dimension((int) (SCREEN_WIDTH * 2.0 / 4), (int) (SCREEN_HEIGHT * 0.25)));
 
         for (int i = 0; i < 4; i++) {
             TitledBorder titledBorder = BorderFactory.createTitledBorder(FOUNDATION + " " + (i + 1));
@@ -125,13 +123,11 @@ public class GamePanel {
     /**
      * Creates the tableau panels
      *
-     * @param screenWidth  The width of the screen
-     * @param screenHeight The height of the screen
      * @return The tableau panels
      */
-    private JPanel createTableauPanels(double screenWidth, double screenHeight) {
+    private JPanel createTableauPanels() {
         JPanel tableauPanels = new JPanel(new GridLayout(1, 7));
-        tableauPanels.setBounds(0, (int) (screenHeight * 0.25), (int) screenWidth, (int) (screenHeight * 0.65));
+        tableauPanels.setBounds(0, (int) (SCREEN_HEIGHT * 0.25), SCREEN_WIDTH, (int) (SCREEN_HEIGHT * 0.65));
         tableauPanels.setBackground(new Color(0, 128, 0));
 
         for (int i = 0; i < 7; i++) {
@@ -153,13 +149,11 @@ public class GamePanel {
      * used for the deck and discard pile
      *
      * @param title        The title of the panel
-     * @param screenWidth  The width of the screen
-     * @param screenHeight The height of the screen
      * @return The border panel
      */
-    private JPanel createDeckPanel(String title, double screenWidth, double screenHeight) {
+    private JPanel createDeckPanel(String title) {
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension((int) (screenWidth / 8), (int) (screenHeight * 0.25)));
+        panel.setPreferredSize(new Dimension(SCREEN_WIDTH / 8, (int) (SCREEN_HEIGHT * 0.25)));
 
         TitledBorder titledBorder = BorderFactory.createTitledBorder(title);
         titledBorder.setTitleColor(Color.BLACK);
