@@ -1,6 +1,6 @@
-package GUI;
+package listener;
 
-import Game.ScoreManager;
+import service.ScoreManager;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

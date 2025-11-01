@@ -1,4 +1,4 @@
-package GUI;
+package listener;
 
 public interface IScoreListener {
 

@@ -1,4 +1,4 @@
-package Game;
+package model;
 
 /**
  * Interface for classes that can hold cards

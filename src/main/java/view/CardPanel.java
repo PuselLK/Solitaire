@@ -1,6 +1,7 @@
-package GUI;
+package view;
 
-import Game.*;
+import controller.Solitaire;
+import model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Objects;
 
-import static GUI.GamePanel.renderGameState;
+import static view.GamePanel.renderGameState;
 
 
 public class CardPanel {

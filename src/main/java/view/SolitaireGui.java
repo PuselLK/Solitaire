@@ -1,6 +1,6 @@
-package GUI;
+package view;
 
-import Game.Solitaire;
+import controller.Solitaire;
 
 import javax.swing.*;
 import java.awt.*;

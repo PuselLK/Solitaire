@@ -1,6 +1,8 @@
-package GUI;
+package view;
 
-import Game.Solitaire;
+import listener.IScoreListener;
+import listener.TimerListener;
+import controller.Solitaire;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;

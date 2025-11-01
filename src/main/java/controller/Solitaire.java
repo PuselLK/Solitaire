@@ -1,9 +1,12 @@
-package Game;
+package controller;
+
+import service.ScoreManager;
+import model.*;
 
 import java.util.Stack;
 
-import static GUI.CardPanel.FOUNDATION;
-import static GUI.CardPanel.TABLEAU;
+import static view.CardPanel.FOUNDATION;
+import static view.CardPanel.TABLEAU;
 
 /**
  * Represents the game of Solitaire.

@@ -1,6 +1,6 @@
-package Game;
+package service;
 
-import GUI.IScoreListener;
+import listener.IScoreListener;
 
 import java.util.ArrayList;
 import java.util.List;

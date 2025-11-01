@@ -1,5 +1,9 @@
-package Game;
+package controller;
 
+import model.Deck;
+import model.DiscardPile;
+import model.Foundation;
+import model.Tableau;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

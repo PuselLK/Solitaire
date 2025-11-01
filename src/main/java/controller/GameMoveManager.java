@@ -1,4 +1,6 @@
-package Game;
+package controller;
+
+import model.*;
 
 import java.util.List;
 import java.util.Stack;

@@ -1,13 +1,13 @@
-package GUI;
+package view;
 
-import Game.Solitaire;
+import controller.Solitaire;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-import static GUI.CardPanel.*;
+import static view.CardPanel.*;
 
 public class GamePanel {
 
