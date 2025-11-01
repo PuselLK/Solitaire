@@ -10,33 +10,33 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SolitaireTest {
-    private Solitaire solitaire;
+class SolitaireControllerTest {
+    private SolitaireController solitaireController;
     private Deck deck;
     private DiscardPile discardPile;
 
     @BeforeEach
     void setUp() {
-        solitaire = new Solitaire();
-        deck = solitaire.get_deck();
-        discardPile = solitaire.get_discardPile();
+        solitaireController = new SolitaireController();
+        deck = solitaireController.get_deck();
+        discardPile = solitaireController.get_discardPile();
     }
 
     @Test
     void SolitaireConstructor_ShouldSetSolitaireCorrectly() {
-        for (Foundation foundation : solitaire.get_foundationsArray()) {
+        for (Foundation foundation : solitaireController.get_foundationsArray()) {
             assertTrue(foundation.isEmpty());
         }
 
         int tableauSize = 0;
-        for (Tableau tableau : solitaire.get_tableausArray()) {
+        for (Tableau tableau : solitaireController.get_tableausArray()) {
             tableauSize++;
             assertEquals(tableauSize, tableau.getTableauSize());
             assertTrue(tableau.peek().isVisible());
         }
 
-        assertTrue(solitaire.get_discardPile().isEmpty());
-        assertEquals(24, solitaire.get_deck().get_deck().size());
+        assertTrue(solitaireController.get_discardPile().isEmpty());
+        assertEquals(24, solitaireController.get_deck().get_deck().size());
     }
 
     @Test
@@ -47,7 +47,7 @@ class SolitaireTest {
         }
         assertEquals(0, deck.get_deck().size());
         assertEquals(24, discardPile.get_discardPile().size());
-        solitaire.reDealCards();
+        solitaireController.reDealCards();
         assertEquals(24, deck.get_deck().size());
         assertEquals(0, discardPile.get_discardPile().size());
     }

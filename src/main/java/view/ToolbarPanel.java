@@ -2,14 +2,14 @@ package view;
 
 import listener.IScoreListener;
 import listener.TimerListener;
-import controller.Solitaire;
+import controller.SolitaireController;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ToolbarPanel implements IScoreListener {
-    private final Solitaire _solitaire;
+    private final SolitaireController _solitaireController;
     private static JLabel _timeLabel = null;
     private final JButton _stepBackButton;
     private final JButton _restartButton;
@@ -21,8 +21,8 @@ public class ToolbarPanel implements IScoreListener {
     /**
      * Creates a new toolbar panel with a time label
      */
-    public ToolbarPanel(Solitaire solitaire) {
-        _solitaire = solitaire;
+    public ToolbarPanel(SolitaireController solitaireController) {
+        _solitaireController = solitaireController;
         _toolBar = new JToolBar();
         _toolBar.setFloatable(false);
 
@@ -38,7 +38,7 @@ public class ToolbarPanel implements IScoreListener {
         _restartButton = new JButton("Restart");
         addMouseListener();
         _score = new JLabel("Score: 0", SwingConstants.CENTER);
-        _solitaire.getScoreManager().addListener(this);
+        _solitaireController.getScoreManager().addListener(this);
 
         _toolBar.add(_timeLabel);
         _toolBar.add(_stepBackButton);
@@ -50,14 +50,14 @@ public class ToolbarPanel implements IScoreListener {
         _stepBackButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                _solitaire.stepBack();
+                _solitaireController.stepBack();
                 GamePanel.renderGameState();
             }
         });
         _restartButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                _solitaire.restart();
+                _solitaireController.restart();
                 resetTimer();
                 GamePanel.renderGameState();
             }

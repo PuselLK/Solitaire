@@ -12,7 +12,7 @@ import static view.CardPanel.TABLEAU;
  * Represents the game of Solitaire.
  * Contains the Deck, the Foundations and the Tableaus.
  */
-public class Solitaire {
+public class SolitaireController {
     private Deck _deck;
     private DiscardPile _discardPile;
     private Foundation[] _foundationsArray;
@@ -23,7 +23,7 @@ public class Solitaire {
     /**
      * Constructor for the Solitaire class.
      */
-    public Solitaire() {
+    public SolitaireController() {
         _gameMoveManager = new GameMoveManager();
         _scoreManager = ScoreManager.getInstance();
         initializeGame();

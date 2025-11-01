@@ -1,6 +1,6 @@
 package view;
 
-import controller.Solitaire;
+import controller.SolitaireController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,17 +8,17 @@ import java.awt.*;
 /**
  * The main class for the Solitaire GUI
  */
-public class SolitaireGui {
+public class SolitaireView {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(SolitaireGui::new);
+        SwingUtilities.invokeLater(SolitaireView::new);
     }
 
     /**
      * Creates a new instance of the game GUI
      */
-    public SolitaireGui() {
-        Solitaire _solitaire = new Solitaire();
+    public SolitaireView() {
+        SolitaireController _solitaireController = new SolitaireController();
 
         JFrame _frame = new JFrame("Solitaire");
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,10 +27,10 @@ public class SolitaireGui {
         double _screenHeight = 800;
         _frame.setSize((int) _screenWidth, (int) _screenHeight);
 
-        ToolbarPanel toolbarPanel = new ToolbarPanel(_solitaire);
+        ToolbarPanel toolbarPanel = new ToolbarPanel(_solitaireController);
         _frame.add(toolbarPanel.getToolBar(), BorderLayout.NORTH);
 
-        GamePanel gamePanel = new GamePanel(_solitaire, _screenWidth, _screenHeight);
+        GamePanel gamePanel = new GamePanel(_solitaireController, _screenWidth, _screenHeight);
         _frame.add(gamePanel.getMainPane(), BorderLayout.CENTER);
 
         _frame.setVisible(true);

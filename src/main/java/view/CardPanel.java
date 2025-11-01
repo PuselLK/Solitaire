@@ -1,6 +1,6 @@
 package view;
 
-import controller.Solitaire;
+import controller.SolitaireController;
 import model.*;
 
 import javax.swing.*;
@@ -14,7 +14,7 @@ import static view.GamePanel.renderGameState;
 
 
 public class CardPanel {
-    private final Solitaire _solitaire;
+    private final SolitaireController _solitaireController;
     private final JLayeredPane _mainPane;
     private final JPanel _foundationPanels;
     private final JPanel _deckPanel;
@@ -32,15 +32,15 @@ public class CardPanel {
     /**
      * Creates a new card panel with the given solitaire game and panels
      *
-     * @param solitaire        The solitaire game to be displayed
+     * @param solitaireController        The solitaire game to be displayed
      * @param mainPane         The main pane of the game
      * @param foundationPanels The foundation panels of the game
      * @param deckPanel        The deck panel of the game
      * @param discardPilePanel The discard pile panel of the game
      * @param tableauPanels    The tableau panels of the game
      */
-    public CardPanel(Solitaire solitaire, JLayeredPane mainPane, JPanel foundationPanels, JPanel deckPanel, JPanel discardPilePanel, JPanel tableauPanels) {
-        _solitaire = solitaire;
+    public CardPanel(SolitaireController solitaireController, JLayeredPane mainPane, JPanel foundationPanels, JPanel deckPanel, JPanel discardPilePanel, JPanel tableauPanels) {
+        _solitaireController = solitaireController;
         _mainPane = mainPane;
         _foundationPanels = foundationPanels;
         _deckPanel = deckPanel;
@@ -52,8 +52,8 @@ public class CardPanel {
      * Renders the foundation piles based on the current state of the game
      */
     public void renderFoundation() {
-        for (int i = 0; i < _solitaire.get_foundationsArray().length; i++) {
-            Foundation foundation = _solitaire.get_foundationsArray()[i];
+        for (int i = 0; i < _solitaireController.get_foundationsArray().length; i++) {
+            Foundation foundation = _solitaireController.get_foundationsArray()[i];
             JPanel panel = (JPanel) _foundationPanels.getComponent(i);
             if (!foundation.isEmpty()) {
                 JLabel foundationLabel = createCardLabelClickable(foundation.peek(), FOUNDATION, panel);
@@ -66,8 +66,8 @@ public class CardPanel {
      * Renders the deck and discard pile based on the current state of the game
      */
     public void renderDeckAndDiscardPile() {
-        Deck deck = _solitaire.get_deck();
-        DiscardPile discardPile = _solitaire.get_discardPile();
+        Deck deck = _solitaireController.get_deck();
+        DiscardPile discardPile = _solitaireController.get_discardPile();
 
         if (deck.isEmpty()) {
             JLabel redrawLabel = createRedrawLabel();
@@ -91,8 +91,8 @@ public class CardPanel {
 
         int tableauX_Coordinate = (_tableauPanels.getComponent(1).getWidth() - 100) / 2;
 
-        for (int i = 0; i < _solitaire.get_tableausArray().length; i++) {
-            Tableau tableau = _solitaire.get_tableausArray()[i];
+        for (int i = 0; i < _solitaireController.get_tableausArray().length; i++) {
+            Tableau tableau = _solitaireController.get_tableausArray()[i];
 
             int layer = 0;
             int yPos = 20;
@@ -269,9 +269,9 @@ public class CardPanel {
         System.out.println("Card clicked: " + card.getSuit() + " " + card.getValue());
 
         if (source.equals(DECK)) {
-            _solitaire.placeCardOnDiscardPile(_solitaire.drawCardFromDeck());
+            _solitaireController.placeCardOnDiscardPile(_solitaireController.drawCardFromDeck());
         } else {
-            if (!_solitaire.placeCardOnClick(card)) {
+            if (!_solitaireController.placeCardOnClick(card)) {
                 System.out.println("Card could not be placed");
             }
         }
@@ -295,14 +295,14 @@ public class CardPanel {
         if (dropTarget instanceof JPanel) {
             for (int targetIndex = 0; targetIndex < _foundationPanels.getComponentCount(); targetIndex++) {
                 if (_foundationPanels.getComponent(targetIndex) == dropTarget) {
-                    cardPlaced = _solitaire.placeCardOnDrag(card, targetIndex, FOUNDATION);
+                    cardPlaced = _solitaireController.placeCardOnDrag(card, targetIndex, FOUNDATION);
                     break;
                 }
             }
         } else if (dropTarget instanceof JLayeredPane) {
             for (int targetIndex = 0; targetIndex < _tableauPanels.getComponentCount(); targetIndex++) {
                 if (_tableauPanels.getComponent(targetIndex) == dropTarget) {
-                    cardPlaced = _solitaire.placeCardOnDrag(card, targetIndex, TABLEAU);
+                    cardPlaced = _solitaireController.placeCardOnDrag(card, targetIndex, TABLEAU);
                     break;
                 }
             }
@@ -420,7 +420,7 @@ public class CardPanel {
         redrawLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                _solitaire.reDealCards();
+                _solitaireController.reDealCards();
                 renderGameState();
             }
         });

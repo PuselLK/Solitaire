@@ -1,6 +1,6 @@
 package view;
 
-import controller.Solitaire;
+import controller.SolitaireController;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -11,7 +11,7 @@ import static view.CardPanel.*;
 
 public class GamePanel {
 
-    private static Solitaire _solitaire;
+    private static SolitaireController _solitaireController;
     private static JLayeredPane _mainPane;
     private static JPanel _tableauPanels;
     private static JPanel _foundationPanels;
@@ -21,12 +21,12 @@ public class GamePanel {
     /**
      * Creates a new game panel with the given solitaire game and screen dimensions
      *
-     * @param solitaire    The solitaire game to be displayed
+     * @param solitaireController    The solitaire game to be displayed
      * @param screenWidth  The width of the screen
      * @param screenHeight The height of the screen
      */
-    public GamePanel(Solitaire solitaire, double screenWidth, double screenHeight) {
-        _solitaire = solitaire;
+    public GamePanel(SolitaireController solitaireController, double screenWidth, double screenHeight) {
+        _solitaireController = solitaireController;
 
         _mainPane = new JLayeredPane();
         _mainPane.setLayout(null);
@@ -59,7 +59,7 @@ public class GamePanel {
     public static void renderGameState() {
         clearPanels();
 
-        CardPanel cardPanel = new CardPanel(_solitaire, _mainPane, _foundationPanels, _deckPanel, _discardPilePanel, _tableauPanels);
+        CardPanel cardPanel = new CardPanel(_solitaireController, _mainPane, _foundationPanels, _deckPanel, _discardPilePanel, _tableauPanels);
         cardPanel.renderFoundation();
         cardPanel.renderDeckAndDiscardPile();
         cardPanel.renderTableau();
@@ -67,10 +67,10 @@ public class GamePanel {
         _mainPane.revalidate();
         _mainPane.repaint();
 
-        if (_solitaire.isGameFinished()) {
+        if (_solitaireController.isGameFinished()) {
             JOptionPane.showOptionDialog(_mainPane, "Would you like to play again?", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
             if (JOptionPane.YES_OPTION == 0) {
-                _solitaire.restart();
+                _solitaireController.restart();
                 ToolbarPanel.resetTimer();
                 GamePanel.renderGameState();
             } else if (JOptionPane.NO_OPTION == 1) {
