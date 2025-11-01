@@ -69,7 +69,7 @@ public class GameMoveManager {
     private void handleDiscardPileStepBack(List<Card> movedCards, ICardHolder destination, ICardHolder discardPileOrigin) {
         if (!(destination instanceof Deck)) {
             destination.pickUpCard();
-            discardPileOrigin.placeCard(movedCards.get(0));
+            discardPileOrigin.placeCard(movedCards.getFirst());
         } else {
             while (!destination.isEmpty()) {
                 discardPileOrigin.placeCard(destination.pickUpCard());
@@ -102,7 +102,7 @@ public class GameMoveManager {
         } else if (destination instanceof Foundation) {
             destination.pickUpCard();
             handleTableauVisibility(gameMove, tableauOrigin);
-            tableauOrigin.placeCard(movedCards.get(0));
+            tableauOrigin.placeCard(movedCards.getFirst());
         }
     }
 
@@ -115,7 +115,7 @@ public class GameMoveManager {
      */
     private void handleFoundationStepBack(List<Card> movedCards, ICardHolder foundationOrigin, ICardHolder destination) {
         destination.pickUpCard();
-        foundationOrigin.placeCard(movedCards.get(0));
+        foundationOrigin.placeCard(movedCards.getFirst());
     }
 
     /**

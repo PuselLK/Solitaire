@@ -31,7 +31,7 @@ public final class ScoreManager {
 
     public void increaseScore(int i) {
         _score += i;
-        notifyListners();
+        notifyListeners();
         System.out.println("Score increased by " + i);
     }
 
@@ -41,13 +41,13 @@ public final class ScoreManager {
         } else {
             _score -= i;
         }
-        notifyListners();
+        notifyListeners();
         System.out.println("Score decreased by " + i);
     }
 
     public void resetScore() {
         _score = 0;
-        notifyListners();
+        notifyListeners();
         System.out.println("Score reset");
     }
 
@@ -59,7 +59,7 @@ public final class ScoreManager {
         listeners.remove(listener);
     }
 
-    public void notifyListners() {
+    public void notifyListeners() {
         for (IScoreListener listener : listeners) {
             listener.onScoreChange(_score);
         }
