@@ -1,4 +1,4 @@
-package service;
+package controller;
 
 import listener.IScoreListener;
 
@@ -64,5 +64,4 @@ public final class ScoreManager {
             listener.onScoreChange(_score);
         }
     }
-
 }

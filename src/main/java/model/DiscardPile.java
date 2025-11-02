@@ -16,7 +16,7 @@ public class DiscardPile implements ICardHolder {
      */
     @Override
     public void placeCard(Card card) {
-        card.set_isVisible(true);
+        card.setVisibility(true);
         _discardPile.push(card);
     }
 

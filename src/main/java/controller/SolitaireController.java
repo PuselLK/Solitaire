@@ -1,41 +1,117 @@
 package controller;
 
-import service.ScoreManager;
-import model.*;
+import listener.ICardDraggedListener;
+import listener.ICardPressedListener;
+import listener.ICardReleasedListener;
+import model.Card;
+import model.Deck;
+import model.DiscardPile;
+import model.Foundation;
+import model.GameMove;
+import model.ICardHolder;
+import model.Tableau;
+import view.SolitaireView;
+import view.ToolbarPanel;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.util.Objects;
 import java.util.Stack;
 
-import static view.CardPanel.FOUNDATION;
-import static view.CardPanel.TABLEAU;
+import static view.DeckPanel.DECK;
+import static view.FoundationPanel.FOUNDATION;
+import static view.TableauPanel.TABLEAU;
 
 /**
  * Represents the game of Solitaire.
  * Contains the Deck, the Foundations and the Tableaus.
  */
-public class SolitaireController {
+public final class SolitaireController implements ICardPressedListener, ICardReleasedListener, ICardDraggedListener {
+    private static SolitaireController INSTANCE;
+    private SolitaireView _view;
     private Deck _deck;
     private DiscardPile _discardPile;
     private Foundation[] _foundationsArray;
     private Tableau[] _tableausArray;
-    private final GameMoveManager _gameMoveManager;
-    private final ScoreManager _scoreManager;
+
+    private JLayeredPane _mainPane;
+    private boolean _hasBeenDragged = false;
+    private JLabel _draggedLabel = null;
+    private Point _initialClickPosition;
 
     /**
      * Constructor for the Solitaire class.
      */
-    public SolitaireController() {
-        _gameMoveManager = new GameMoveManager();
-        _scoreManager = ScoreManager.getInstance();
-        initializeGame();
+    private SolitaireController() {
+    }
+
+    public static SolitaireController getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new SolitaireController();
+        }
+        return INSTANCE;
     }
 
     /**
      * Restarts the Solitaire game.
      */
     public void restart() {
-        _gameMoveManager.clearGameMoves();
-        _scoreManager.resetScore();
+        GameMoveManager.getInstance().clearGameMoves();
+        ScoreManager.getInstance().resetScore();
         initializeGame();
+    }
+
+    /**
+     * Initializes the controller, model and view.
+     */
+    public void initialize() {
+        initializeGame();
+        _view = new SolitaireView();
+        _mainPane = _view.getGamePanel().getMainPane();
+        wireUpView();
+        updateView();
+    }
+
+    /**
+     * Wires up the view with the controller.
+     */
+    private void wireUpView() {
+        ScoreManager.getInstance().addListener(_view.getToolbarPanel());
+        _view.getToolbarPanel().addStepBackListener(e -> {
+            stepBack();
+            updateView();
+        });
+
+        _view.getToolbarPanel().addRestartListener(e -> {
+            restart();
+            ToolbarPanel.resetTimer();
+            updateView();
+        });
+
+        _view.addGameOverListener(e -> {
+            restart();
+            ToolbarPanel.resetTimer();
+            updateView();
+        });
+
+        _view.getGamePanel().getDeckPanel().addRedrawListener(e -> {
+            reDealCards();
+            updateView();
+        });
+
+        _view.getGamePanel().registerCardListeners(this, this, this);
+    }
+
+    /**
+     * Updates the view with the current state of the model.
+     */
+    private void updateView() {
+        _view.updateGameState(_deck, _discardPile, _foundationsArray, _tableausArray);
+
+        if (isGameFinished()) {
+            _view.showGameOverDialog();
+        }
     }
 
     /**
@@ -63,7 +139,7 @@ public class SolitaireController {
                 tableau.push(_deck.pickUpCard());
             }
             _tableausArray[i] = new Tableau(tableau);
-            _tableausArray[i].peek().set_isVisible(true);
+            _tableausArray[i].peek().setVisibility(true);
         }
     }
 
@@ -86,13 +162,13 @@ public class SolitaireController {
 
             gameMove.set_destination(findCardOrigin(card));
             gameMove.addCard(card);
-            _gameMoveManager.addGameMove(gameMove);
+            GameMoveManager.getInstance().addGameMove(gameMove);
             return true;
         } else if (!isTopCard && placeCardAlgorithm(card, false)) {
             removeCardIfNotTop(origin, card, gameMove);
 
             addAttachedCardsToGameMove(card, gameMove);
-            _gameMoveManager.addGameMove(gameMove);
+            GameMoveManager.getInstance().addGameMove(gameMove);
             return true;
         }
         return false;
@@ -120,14 +196,14 @@ public class SolitaireController {
 
             gameMove.set_destination(findCardOrigin(card));
             gameMove.addCard(card);
-            _gameMoveManager.addGameMove(gameMove);
+            GameMoveManager.getInstance().addGameMove(gameMove);
             return true;
         } else if ((!isTopCard && targetType.equals(FOUNDATION) && placeCardOnFoundation(card, targetIndex, false)) ||
                 (!isTopCard && targetType.equals(TABLEAU) && placeCardOnTableau(card, targetIndex))) {
             removeCardIfNotTop(origin, card, gameMove);
 
             addAttachedCardsToGameMove(card, gameMove);
-            _gameMoveManager.addGameMove(gameMove);
+            GameMoveManager.getInstance().addGameMove(gameMove);
             return true;
         }
         return false;
@@ -149,16 +225,16 @@ public class SolitaireController {
                 if (topCard.isVisible()) {
                     gameMove.setTableauCardWasVisible(true);
                 } else {
-                    _scoreManager.increaseScore(5);
+                    ScoreManager.getInstance().increaseScore(5);
                 }
-                topCard.set_isVisible(true);
+                topCard.setVisibility(true);
             }
         }
         if (origin instanceof DiscardPile) {
-            _scoreManager.increaseScore(5);
+            ScoreManager.getInstance().increaseScore(5);
         }
         if (origin instanceof Foundation) {
-            _scoreManager.decreaseScore(5);
+            ScoreManager.getInstance().decreaseScore(5);
         }
     }
 
@@ -189,9 +265,9 @@ public class SolitaireController {
             if (topCard.isVisible()) {
                 gameMove.setTableauCardWasVisible(true);
             } else {
-                _scoreManager.increaseScore(5);
+                ScoreManager.getInstance().increaseScore(5);
             }
-            topCard.set_isVisible(true);
+            topCard.setVisibility(true);
         }
 
         // remove the clicked card since it already has been placed
@@ -219,7 +295,7 @@ public class SolitaireController {
     private boolean placeCardOnFoundation(Card card, int i, boolean isTopCard) {
         if (_foundationsArray[i].isValidMove(card, isTopCard)) {
             _foundationsArray[i].placeCard(card);
-            _scoreManager.increaseScore(10);
+            ScoreManager.getInstance().increaseScore(10);
             return true;
         }
         return false;
@@ -264,7 +340,7 @@ public class SolitaireController {
         for (Foundation foundation : _foundationsArray) {
             if (foundation.isValidMove(card, isTopCard)) {
                 foundation.placeCard(card);
-                _scoreManager.increaseScore(10);
+                ScoreManager.getInstance().increaseScore(10);
                 return true;
             }
         }
@@ -314,7 +390,7 @@ public class SolitaireController {
      * @return The card drawn from the deck
      */
     public Card drawCardFromDeck() {
-        _gameMoveManager.addGameMove(new GameMove(_deck, _discardPile));
+        GameMoveManager.getInstance().addGameMove(new GameMove(_deck, _discardPile));
 
         return _deck.pickUpCard();
     }
@@ -333,12 +409,12 @@ public class SolitaireController {
      * Decreases Score by 100
      */
     public void reDealCards() {
-        _gameMoveManager.addGameMove(new GameMove(_discardPile, _deck));
+        GameMoveManager.getInstance().addGameMove(new GameMove(_discardPile, _deck));
         while (!_discardPile.isEmpty()) {
-            _discardPile.peek().set_isVisible(false);
+            _discardPile.peek().setVisibility(false);
             _deck.placeCard(_discardPile.pickUpCard());
         }
-        _scoreManager.decreaseScore(100);
+        ScoreManager.getInstance().decreaseScore(100);
     }
 
     /**
@@ -350,11 +426,11 @@ public class SolitaireController {
      */
     public boolean isGameFinished() {
         for (Foundation foundation : _foundationsArray) {
-            if (foundation.isEmpty() || foundation.peek().getValue() != 13) {
+            if (foundation.isEmpty() || foundation.peek().getRank() != 13) {
                 return false;
             }
         }
-        _scoreManager.increaseScore(100);
+        ScoreManager.getInstance().increaseScore(100);
         return true;
     }
 
@@ -383,8 +459,8 @@ public class SolitaireController {
      * @see GameMoveManager#stepBack()
      */
     public void stepBack() {
-        _gameMoveManager.stepBack();
-        _scoreManager.decreaseScore(10);
+        GameMoveManager.getInstance().stepBack();
+        ScoreManager.getInstance().decreaseScore(10);
     }
 
     //Getter methods----------------------------------------------
@@ -425,7 +501,235 @@ public class SolitaireController {
         return _tableausArray;
     }
 
-    public ScoreManager getScoreManager() {
-        return _scoreManager;
+    @Override
+    public void onCardPressed(MouseEvent e, JLabel cardLabel, String source, Container parentContainer) {
+        handleMousePressed(e, cardLabel, source, parentContainer);
+    }
+
+    /**
+     * Handles the mouse pressed event for a card label
+     * The Card Label is removed from its parent container and added to the drag layer of the main pane
+     *
+     * @param e               The mouse event
+     * @param cardLabel       The label that was pressed
+     * @param source          The source of the card
+     * @param parentContainer The container in which the card is placed
+     */
+    private void handleMousePressed(MouseEvent e, JLabel cardLabel, String source, Container parentContainer) {
+        _draggedLabel = cardLabel;
+        _initialClickPosition = e.getPoint();
+
+        Point cardLocation = SwingUtilities.convertPoint(parentContainer, cardLabel.getLocation(), _mainPane);
+        cardLabel.setBounds(cardLocation.x, cardLocation.y, cardLabel.getWidth(), cardLabel.getHeight());
+
+        if (source.equals(TABLEAU)) {
+            handleTableau(parentContainer, cardLabel);
+        }
+
+        parentContainer.remove(cardLabel);
+        _mainPane.add(_draggedLabel, JLayeredPane.DRAG_LAYER);
+    }
+
+    /**
+     * Moves all Card Labels above the dragged card to the drag layer of the main pane
+     *
+     * @param parentContainer The container in which the card is placed
+     * @param cardLabel       The label that is being dragged
+     */
+    private void handleTableau(Container parentContainer, JLabel cardLabel) {
+        int layer = getTopmostLayer((JLayeredPane) parentContainer);
+        Component[] compArray = ((JLayeredPane) parentContainer).getComponentsInLayer(layer);
+        Component comp = compArray[0];
+
+        while (comp != cardLabel) {
+            if (comp instanceof JLabel label) {
+                Point otherLocation = SwingUtilities.convertPoint(parentContainer, label.getLocation(), _mainPane);
+                label.setBounds(otherLocation.x, otherLocation.y, label.getWidth(), label.getHeight());
+                parentContainer.remove(label);
+                _mainPane.add(label, JLayeredPane.DRAG_LAYER);
+            }
+            layer--;
+            compArray = ((JLayeredPane) parentContainer).getComponentsInLayer(layer);
+            comp = compArray[0];
+        }
+    }
+
+    @Override
+    public void onCardReleased(Card card, String source, Container parentContainer) {
+        handleMouseReleased(card, source, parentContainer);
+    }
+
+    /**
+     * Handles the mouse released event for a card label
+     * If the card has not been dragged, we handle the click event
+     * If the card has been dragged, we find the drop target and place the card
+     * After the card has been placed, we reset the drag layer components
+     * and rerender the game state
+     *
+     * @param card            The card that was released
+     * @param source          The source of the card
+     * @param parentContainer The container in which the card is placed
+     */
+    private void handleMouseReleased(Card card, String source, Container parentContainer) {
+        _mainPane.remove(_draggedLabel);
+        boolean cardPlaced = false;
+
+        if (!_hasBeenDragged) {
+            handleClick(card, source);
+        } else {
+            _hasBeenDragged = false;
+            Container dropTarget = findDropTarget(_mainPane, _draggedLabel.getLocation());
+
+            if (dropTarget != null) {
+                System.out.println(_draggedLabel.getIcon() + " dropped on " + dropTarget);
+                cardPlaced = handleDrop(card, dropTarget);
+            }
+
+            if (!cardPlaced) {
+                System.out.println("Card could not be placed");
+            }
+        }
+
+        resetDragLayerComponents(parentContainer);
+        updateView();
+    }
+
+    /**
+     * When a Card has been clicked,we either draw a card from the deck or place the card on the discard pile
+     * or place the card on the foundation or tableau
+     *
+     * @param card   The card that was clicked
+     * @param source The source of the card
+     */
+    private void handleClick(Card card, String source) {
+        System.out.println("Card clicked: " + card.getSuit() + " " + card.getRank());
+
+        if (source.equals(DECK)) {
+            placeCardOnDiscardPile(drawCardFromDeck());
+        } else {
+            if (!placeCardOnClick(card)) {
+                System.out.println("Card could not be placed");
+            }
+        }
+    }
+
+    /**
+     * When a Card has been dragged, this method handles the dropping of the card based on the drop target
+     * <p>
+     * If the drop target is a JPanel, we iterate through the foundation panels to find the correct target
+     * and place the card on the foundation
+     * <p>
+     * If the drop target is a JLayeredPane, we iterate through the tableau panels to find the correct target
+     * and place the card on the tableau
+     *
+     * @param card       The card that is being dropped
+     * @param dropTarget The container that the card is being dropped on
+     * @return True if the card was placed, false otherwise
+     */
+    private boolean handleDrop(Card card, Container dropTarget) {
+        boolean cardPlaced = false;
+        if (dropTarget instanceof JPanel) {
+            for (int targetIndex = 0; targetIndex < _view.getGamePanel().getFoundationPanel().getFoundationPanel().getComponentCount(); targetIndex++) {
+                if (_view.getGamePanel().getFoundationPanel().getFoundationPanel().getComponent(targetIndex) == dropTarget) {
+                    cardPlaced = placeCardOnDrag(card, targetIndex, FOUNDATION);
+                    break;
+                }
+            }
+        } else if (dropTarget instanceof JLayeredPane) {
+            for (int targetIndex = 0; targetIndex < _view.getGamePanel().getTableauPanel().getTableauPanel().getComponentCount(); targetIndex++) {
+                if (_view.getGamePanel().getTableauPanel().getTableauPanel().getComponent(targetIndex) == dropTarget) {
+                    cardPlaced = placeCardOnDrag(card, targetIndex, TABLEAU);
+                    break;
+                }
+            }
+        }
+        return cardPlaced;
+    }
+
+    /**
+     * Resets _mainPane by removing all components in its DRAG_LAYER
+     * and adding them back to their former parent container
+     *
+     * @param parentContainer The container to add the components back to
+     */
+    private void resetDragLayerComponents(Container parentContainer) {
+        for (Component comp : _mainPane.getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
+            if (comp instanceof JLabel) {
+                _mainPane.remove(comp);
+                parentContainer.add(comp);
+            }
+        }
+    }
+
+    @Override
+    public void onCardDragged(MouseEvent e, String source) {
+        handleMouseDragged(e, source);
+    }
+
+    /**
+     * Handles the dragging of a card label by updating its position based on the mouse movement
+     * If the card is from the tableau, all other cards above the dragged card are also moved
+     *
+     * @param e      The mouse event
+     * @param source The source of the card
+     */
+    private void handleMouseDragged(MouseEvent e, String source) {
+        if (!Objects.equals(source, DECK)) {
+            _hasBeenDragged = true;
+
+            int xMoved = e.getX() - _initialClickPosition.x;
+            int yMoved = e.getY() - _initialClickPosition.y;
+
+            int nextX = _draggedLabel.getLocation().x + xMoved;
+            int nextY = _draggedLabel.getLocation().y + yMoved;
+
+            _draggedLabel.setLocation(nextX, nextY);
+
+            if (source.equals(TABLEAU)) {
+                for (Component comp : _mainPane.getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
+                    if (comp instanceof JLabel && comp != _draggedLabel) {
+                        int compNextX = comp.getLocation().x + xMoved;
+                        int compNextY = comp.getLocation().y + yMoved;
+                        comp.setLocation(compNextX, compNextY);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Recursively finds the drop target for a card label based on its position
+     *
+     * @param parent The parent container to search in
+     * @param point  The point to search for
+     * @return The drop target container
+     */
+    private Container findDropTarget(Container parent, Point point) {
+        for (Component component : parent.getComponents()) {
+            if (component instanceof Container && component.getBounds().contains(point) && !(component instanceof JLabel)) {
+                Point convertedPoint = SwingUtilities.convertPoint(parent, point, component);
+                Container innerContainer = findDropTarget((Container) component, convertedPoint);
+                return Objects.requireNonNullElseGet(innerContainer, () -> (Container) component);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the highest layer of a JLayeredPane
+     * Used to determine the layer of the topmost card in a tableau to later iterate downwards to the dragged card
+     *
+     * @param layeredPane The JLayeredPane to get the highest layer from
+     * @return The highest layer
+     */
+    private int getTopmostLayer(JLayeredPane layeredPane) {
+        int highestLayer = 0;
+        for (Component comp : layeredPane.getComponents()) {
+            int layer = layeredPane.getLayer(comp);
+            if (layer > highestLayer) {
+                highestLayer = layer;
+            }
+        }
+        return highestLayer;
     }
 }

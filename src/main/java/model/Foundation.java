@@ -55,10 +55,10 @@ public class Foundation implements ICardHolder {
             return false;
         }
         if (_foundation.isEmpty()) {
-            return card.getValue() == 1;
+            return card.getRank() == 1;
         } else {
             Card topCard = _foundation.peek();
-            return topCard.getSuit() == card.getSuit() && topCard.getValue() == card.getValue() - 1;
+            return topCard.getSuit() == card.getSuit() && topCard.getRank() == card.getRank() - 1;
         }
     }
 

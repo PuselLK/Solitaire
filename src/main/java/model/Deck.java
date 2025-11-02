@@ -48,7 +48,7 @@ public class Deck implements ICardHolder {
      */
     @Override
     public void placeCard(Card card) {
-        card.set_isVisible(false);
+        card.setVisibility(false);
         _deck.push(card);
     }
 

@@ -3,7 +3,10 @@ package model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CardTest {
     Card cardHeart;
@@ -23,16 +26,16 @@ class CardTest {
     void CardConstructor_ShouldSetImagePathCorrectly_WhenRankIsBetween_0_And_14() {
         Card cardRankOne = new Card(Card.Suit.HEART, 1);
         Card cardRank13 = new Card(Card.Suit.HEART, 13);
-        assertEquals("src/main/resources/heart/1_heart.png", cardRankOne.get_imagePath());
-        assertEquals("src/main/resources/heart/13_heart.png", cardRank13.get_imagePath());
+        assertEquals("src/main/resources/heart/1_heart.png", cardRankOne.getImagePath());
+        assertEquals("src/main/resources/heart/13_heart.png", cardRank13.getImagePath());
     }
 
     @Test
     void CardConstructor_ShouldSetImagePathToCardBack_WhenRankIsNotBetween_0_And_14() {
         Card cardRank0 = new Card(Card.Suit.HEART, 0);
         Card cardRank14 = new Card(Card.Suit.HEART, 14);
-        assertEquals("src/main/resources/card back/card_back.png", cardRank0.get_imagePath());
-        assertEquals("src/main/resources/card back/card_back.png", cardRank14.get_imagePath());
+        assertEquals("src/main/resources/card back/card_back.png", cardRank0.getImagePath());
+        assertEquals("src/main/resources/card back/card_back.png", cardRank14.getImagePath());
     }
 
     @Test

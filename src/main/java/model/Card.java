@@ -16,7 +16,6 @@ public class Card {
 
     private final Suit _suit; // The suit of the card.
     private final int _rank; // The rank of the card. 0 for Backside, 1 for Ace, 2-10 for Numbers, 11 Joker, 12 Queen, 13 King.
-    private final String _imagePath; // Path to the image representing the card.
     private boolean _isVisible; // Visibility status of the card.
 
     /**
@@ -30,11 +29,6 @@ public class Card {
         _suit = suit;
         _rank = rank;
         _isVisible = false;
-        if (rank > 0 && rank < 14) {
-            _imagePath = "src/main/resources/" + suit + "/" + rank + "_" + suit + ".png";
-        } else {
-            _imagePath = "src/main/resources/card back/card_back.png";
-        }
     }
 
     /**
@@ -70,7 +64,7 @@ public class Card {
      *
      * @return The rank of the card.
      */
-    public int getValue() {
+    public int getRank() {
         return _rank;
     }
 
@@ -81,15 +75,6 @@ public class Card {
      */
     public Suit getSuit() {
         return _suit;
-    }
-
-    /**
-     * Gets the image path of the card.
-     *
-     * @return The image path of the card.
-     */
-    public String get_imagePath() {
-        return _imagePath;
     }
 
     /**
@@ -106,7 +91,7 @@ public class Card {
      *
      * @param isVisible The visibility status to set.
      */
-    public void set_isVisible(boolean isVisible) {
+    public void setVisibility(boolean isVisible) {
         _isVisible = isVisible;
     }
 
@@ -119,7 +104,7 @@ public class Card {
     @Override
     public boolean equals(Object otherCard) {
         if (otherCard instanceof Card card) {
-            return _rank == card.getValue() && _suit == card.getSuit();
+            return _rank == card.getRank() && _suit == card.getSuit();
         }
         return false;
     }

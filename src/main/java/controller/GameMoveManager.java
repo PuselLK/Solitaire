@@ -1,6 +1,12 @@
 package controller;
 
-import model.*;
+import model.Card;
+import model.Deck;
+import model.DiscardPile;
+import model.Foundation;
+import model.GameMove;
+import model.ICardHolder;
+import model.Tableau;
 
 import java.util.List;
 import java.util.Stack;
@@ -9,14 +15,27 @@ import java.util.Stack;
  * The GameMoveManager class is responsible for managing game moves.
  * It keeps track of all moves made during the game and allows the user to step back one move at a time.
  */
-public class GameMoveManager {
+public final class GameMoveManager {
+    private static GameMoveManager INSTANCE;
     private final Stack<GameMove> _gameMoves;
 
     /**
      * inits the GameMoveManager with an empty stack of game moves.
      */
-    public GameMoveManager() {
+    private GameMoveManager() {
         _gameMoves = new Stack<>();
+    }
+
+    /**
+     * Returns the singleton instance of the GameMoveManager.
+     *
+     * @return The singleton instance of the GameMoveManager.
+     */
+    public static GameMoveManager getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new GameMoveManager();
+        }
+        return INSTANCE;
     }
 
     /**
@@ -84,7 +103,7 @@ public class GameMoveManager {
      */
     public void handleDeckStepBack(ICardHolder origin, ICardHolder destination) {
         Card card = destination.pickUpCard();
-        card.set_isVisible(false);
+        card.setVisibility(false);
         origin.placeCard(card);
     }
 
@@ -126,7 +145,7 @@ public class GameMoveManager {
      */
     private void handleTableauVisibility(GameMove gameMove, ICardHolder tableau) {
         if (!tableau.isEmpty() && !gameMove.getTableauCardWasVisible()) {
-            tableau.peek().set_isVisible(false);
+            tableau.peek().setVisibility(false);
         }
     }
 

@@ -1,33 +1,34 @@
 package view;
 
-import controller.SolitaireController;
+import listener.ICardDraggedListener;
+import listener.ICardPressedListener;
+import listener.ICardReleasedListener;
+import model.Deck;
+import model.DiscardPile;
+import model.Foundation;
+import model.Tableau;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-import static view.CardPanel.*;
 import static view.SolitaireView.SCREEN_HEIGHT;
 import static view.SolitaireView.SCREEN_WIDTH;
 
+/**
+ * GamePanel class that contains the main game area including tableau, foundation, deck, and discard pile panels.
+ */
 public class GamePanel {
 
-    private static SolitaireController _solitaireController;
     private static JLayeredPane _mainPane;
-    private static JPanel _tableauPanels;
-    private static JPanel _foundationPanels;
-    private static JPanel _deckPanel;
-    private static JPanel _discardPilePanel;
+    private final FoundationPanel _foundationPanel;
+    private final DiscardPilePanel _discardPilePanel;
+    private final DeckPanel _deckPanel;
+    private final TableauPanel _tableauPanel;
 
     /**
      * Creates a new game panel with the given solitaire game and screen dimensions
-     *
-     * @param solitaireController    The solitaire game to be displayed
      */
-    public GamePanel(SolitaireController solitaireController) {
-        _solitaireController = solitaireController;
-
+    public GamePanel() {
         _mainPane = new JLayeredPane();
         _mainPane.setLayout(null);
 
@@ -36,17 +37,17 @@ public class GamePanel {
         topPanel.setBackground(new Color(0, 128, 0));
         _mainPane.add(topPanel, JLayeredPane.DEFAULT_LAYER);
 
-        _foundationPanels = createFoundationPanels();
-        topPanel.add(_foundationPanels);
+        _foundationPanel = new FoundationPanel();
+        topPanel.add(_foundationPanel.getFoundationPanel());
 
-        _discardPilePanel = createDeckPanel(DISCARD_PILE);
-        topPanel.add(_discardPilePanel, BorderLayout.EAST);
+        _discardPilePanel = new DiscardPilePanel();
+        topPanel.add(_discardPilePanel.getDiscardPilePanel(), BorderLayout.EAST);
 
-        _deckPanel = createDeckPanel(DECK);
-        topPanel.add(_deckPanel, BorderLayout.EAST);
+        _deckPanel = new DeckPanel();
+        topPanel.add(_deckPanel.getDeckPanel(), BorderLayout.EAST);
 
-        _tableauPanels = createTableauPanels();
-        _mainPane.add(_tableauPanels, JLayeredPane.DEFAULT_LAYER);
+        _tableauPanel = new TableauPanel();
+        _mainPane.add(_tableauPanel.getTableauPanel(), JLayeredPane.DEFAULT_LAYER);
     }
 
     public JLayeredPane getMainPane() {
@@ -56,113 +57,79 @@ public class GamePanel {
     /**
      * Clears the entire game state and re-renders it based on the current state of the game
      */
-    public static void renderGameState() {
+    public void renderGameState(Deck deck, DiscardPile discardPile, Foundation[] foundations, Tableau[] tableaus) {
         clearPanels();
 
-        CardPanel cardPanel = new CardPanel(_solitaireController, _mainPane, _foundationPanels, _deckPanel, _discardPilePanel, _tableauPanels);
-        cardPanel.renderFoundation();
-        cardPanel.renderDeckAndDiscardPile();
-        cardPanel.renderTableau();
+        _foundationPanel.renderFoundation(foundations);
+        _deckPanel.renderDeck(deck);
+        _discardPilePanel.renderDiscardPile(discardPile);
+        _tableauPanel.renderTableau(tableaus);
 
         _mainPane.revalidate();
         _mainPane.repaint();
-
-        if (_solitaireController.isGameFinished()) {
-            JOptionPane.showOptionDialog(_mainPane, "Would you like to play again?", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-            if (JOptionPane.YES_OPTION == 0) {
-                _solitaireController.restart();
-                ToolbarPanel.resetTimer();
-                GamePanel.renderGameState();
-            } else if (JOptionPane.NO_OPTION == 1) {
-                System.exit(0);
-            }
-        }
     }
 
     /**
      * Removes all Components from the foundation, tableau, deck and discard pile panels
      */
-    private static void clearPanels() {
-        for (Component component : _tableauPanels.getComponents()) {
+    private void clearPanels() {
+        for (Component component : _tableauPanel.getTableauPanel().getComponents()) {
             if (component instanceof JLayeredPane) {
                 ((JLayeredPane) component).removeAll();
             }
         }
-        for (Component component : _foundationPanels.getComponents()) {
+        for (Component component : _foundationPanel.getFoundationPanel().getComponents()) {
             if (component instanceof JPanel) {
                 ((JPanel) component).removeAll();
             }
         }
-        _deckPanel.removeAll();
-        _discardPilePanel.removeAll();
+        _deckPanel.getDeckPanel().removeAll();
+        _discardPilePanel.getDiscardPilePanel().removeAll();
+    }
+
+    public void registerCardListeners(ICardPressedListener pressedListener,
+                                      ICardReleasedListener releasedListener,
+                                      ICardDraggedListener draggedListener) {
+
+        _deckPanel.setCardListeners(pressedListener, releasedListener, draggedListener);
+        _discardPilePanel.setCardListeners(pressedListener, releasedListener, draggedListener);
+        _foundationPanel.setCardListeners(pressedListener, releasedListener, draggedListener);
+        _tableauPanel.setCardListeners(pressedListener, releasedListener, draggedListener);
     }
 
     /**
-     * Creates the foundation panels
+     * Gets the FoundationPanel instance
      *
-     * @return The foundation panels
+     * @return The FoundationPanel
      */
-    private JPanel createFoundationPanels() {
-        JPanel foundationPanels = new JPanel(new GridLayout(1, 4));
-        foundationPanels.setPreferredSize(new Dimension((int) (SCREEN_WIDTH * 2.0 / 4), (int) (SCREEN_HEIGHT * 0.25)));
-
-        for (int i = 0; i < 4; i++) {
-            TitledBorder titledBorder = BorderFactory.createTitledBorder(FOUNDATION + " " + (i + 1));
-            titledBorder.setTitleColor(Color.BLACK);
-            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, 3);
-            titledBorder.setBorder(lineBorder);
-
-            JPanel panel = new JPanel();
-            panel.setBorder(titledBorder);
-            panel.setBackground(new Color(0, 128, 0));
-            foundationPanels.add(panel, BorderLayout.CENTER);
-        }
-        return foundationPanels;
+    public FoundationPanel getFoundationPanel() {
+        return _foundationPanel;
     }
 
     /**
-     * Creates the tableau panels
+     * Gets the DiscardPilePanel instance
      *
-     * @return The tableau panels
+     * @return The DiscardPilePanel
      */
-    private JPanel createTableauPanels() {
-        JPanel tableauPanels = new JPanel(new GridLayout(1, 7));
-        tableauPanels.setBounds(0, (int) (SCREEN_HEIGHT * 0.25), SCREEN_WIDTH, (int) (SCREEN_HEIGHT * 0.65));
-        tableauPanels.setBackground(new Color(0, 128, 0));
-
-        for (int i = 0; i < 7; i++) {
-            TitledBorder titledBorder = BorderFactory.createTitledBorder(TABLEAU + " " + (i + 1));
-            titledBorder.setTitleColor(Color.BLACK);
-            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, 3);
-            titledBorder.setBorder(lineBorder);
-
-            JLayeredPane tableauPane = new JLayeredPane();
-            tableauPane.setBorder(titledBorder);
-            tableauPane.setLayout(null);
-            tableauPanels.add(tableauPane);
-        }
-        return tableauPanels;
+    public DiscardPilePanel getDiscardPilePanel() {
+        return _discardPilePanel;
     }
 
     /**
-     * Creates a deck panel with the given title
-     * used for the deck and discard pile
+     * Gets the DeckPanel instance
      *
-     * @param title        The title of the panel
-     * @return The border panel
+     * @return The DeckPanel
      */
-    private JPanel createDeckPanel(String title) {
-        JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(SCREEN_WIDTH / 8, (int) (SCREEN_HEIGHT * 0.25)));
+    public DeckPanel getDeckPanel() {
+        return _deckPanel;
+    }
 
-        TitledBorder titledBorder = BorderFactory.createTitledBorder(title);
-        titledBorder.setTitleColor(Color.BLACK);
-        Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, 3);
-        titledBorder.setBorder(lineBorder);
-
-        panel.setBorder(titledBorder);
-        panel.setBackground(new Color(0, 128, 0));
-
-        return panel;
+    /**
+     * Gets the TableauPanel instance
+     *
+     * @return The TableauPanel
+     */
+    public TableauPanel getTableauPanel() {
+        return _tableauPanel;
     }
 }

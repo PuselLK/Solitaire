@@ -1,6 +1,6 @@
 package listener;
 
-import service.ScoreManager;
+import controller.ScoreManager;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

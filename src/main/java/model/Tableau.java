@@ -54,10 +54,10 @@ public class Tableau implements ICardHolder {
      */
     public boolean isValidMove(Card card) {
         if (_tableau.isEmpty()) {
-            return card.getValue() == 13;
+            return card.getRank() == 13;
         } else {
             Card topCard = _tableau.peek();
-            return topCard.isOppositeColor(card) && topCard.getValue() == card.getValue() + 1;
+            return topCard.isOppositeColor(card) && topCard.getRank() == card.getRank() + 1;
         }
     }
 
